@@ -72,6 +72,36 @@ export default class WindowManager {
     }
   }
 
+  #windowsStatus = new Array<WindowStatus>();
+
+  onWindowShake(){
+    if(this.#windows.length < 1) return;
+
+    // if there is any window not minimized except the active window
+    let anyWindowNotMinimized = false;
+    for(let i = 0; i < this.#windows.length - 1; i++) {
+      if(this.#windows[i].status !== WindowStatus.MINIMIZED) {
+        anyWindowNotMinimized = true;
+        break;
+      }
+    }
+
+    if(anyWindowNotMinimized) {
+      // store windows status
+      this.#windowsStatus = this.#windows.map(window => window.status);
+
+      // set all windows minimized except last one
+      for(let i = 0; i < this.#windows.length - 1; i++) {
+        this.#windows[i].status = WindowStatus.MINIMIZED;
+      }
+    } else {
+      // restore windows status
+      for(let i = 0; i < this.#windows.length - 1; i++) {
+        this.#windows[i].status = this.#windowsStatus[i];
+      }
+    }
+  }
+
   #onDragMove(event: MouseEvent) {
     this.#activeWindow?.onDragMove(event);
   }

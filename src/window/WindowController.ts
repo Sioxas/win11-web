@@ -1,3 +1,4 @@
+import MouseShakeDetector from '@/utils/MouseShakeDetector';
 import WindowManager from './WindowManager';
 import Rect from './WindowRect';
 
@@ -28,6 +29,7 @@ export class WindowController {
   #windowElement?: HTMLDivElement;
   #onActiveChange?: (active: boolean) => void;
   #onStatusChange?: (status: WindowStatus) => void;
+  #mouseShakeDetector?: MouseShakeDetector;
 
   set zIndex(zIndex: number) {
     if(this.#windowElement) {
@@ -77,6 +79,7 @@ export class WindowController {
       this.#rect.left = Math.max(windowManager.windowContainer!.clientWidth / 2 - this.#rect.width / 2, 0);
       this.#rect.top = Math.max(windowManager.windowContainer!.clientHeight / 2 - this.#rect.height / 2, 0);
     }
+    this.#mouseShakeDetector = new MouseShakeDetector(() => windowManager.onWindowShake());
   }
 
   onDragStart(flag: number) {
@@ -87,6 +90,7 @@ export class WindowController {
   onDragMove(event: MouseEvent) {
     if(!this.#rect) return;
     if (!this.#drag) return;
+    this.#mouseShakeDetector?.move(event);
     const Δx = event.movementX / devicePixelRatio;
     const Δy = event.movementY / devicePixelRatio;
     if (this.#cropFlag === CropFlag.TITLE_BAR) {
