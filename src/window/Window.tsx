@@ -22,7 +22,6 @@ export default function Window({ children }: WindowProps) {
   const controller = useMemo(() => new WindowController(), []);
 
   useEffect(() => {
-    console.log('Window mounted');
     controller.init(windowRef.current!, setActive, setStatus);
     windowManager!.registerWindow(controller);
     return () => {

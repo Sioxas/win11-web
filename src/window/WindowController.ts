@@ -10,6 +10,7 @@ export enum WindowStatus {
 }
 
 export enum CropFlag {
+  TITLE_BAR = 0,
   TOP = 1,
   RIGHT = 2,
   BOTTOM = 4,
@@ -18,7 +19,7 @@ export enum CropFlag {
 
 export class WindowController {
   #drag = false;
-  #cropFlag = 0;
+  #cropFlag = CropFlag.TITLE_BAR;
   #windowStatus = WindowStatus.NORMAL;
   #zIndex = Z_INDEX_BASE;
   #active = true;
@@ -52,7 +53,6 @@ export class WindowController {
   set status(value: WindowStatus) {
     this.#windowStatus = value;
     this.#onStatusChange?.(value);
-    // this.#windowManager?.updateWindowStatus(this);
   }
 
   init(windowElement: HTMLDivElement,
@@ -89,7 +89,7 @@ export class WindowController {
     if (!this.#drag) return;
     const Δx = event.movementX / devicePixelRatio;
     const Δy = event.movementY / devicePixelRatio;
-    if (this.#cropFlag === 0) { // drag title bar
+    if (this.#cropFlag === CropFlag.TITLE_BAR) {
       if (this.status === WindowStatus.MAXIMIZED) {
         this.status = WindowStatus.NORMAL;
         this.#rect.left = event.clientX - this.#rect.width / 2;
@@ -118,7 +118,7 @@ export class WindowController {
   onDragStop(event: MouseEvent) {
     if(!this.#rect) return;
     if (!this.#drag) return;
-    if (this.#cropFlag === 0) { // drag title bar
+    if (this.#cropFlag === CropFlag.TITLE_BAR) {
       if (event.clientY <= 0) {
         this.status = WindowStatus.MAXIMIZED;
       }
