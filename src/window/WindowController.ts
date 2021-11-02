@@ -1,5 +1,5 @@
 import MouseShakeDetector from '@/utils/MouseShakeDetector';
-import WindowManager from './WindowManager';
+import WindowService from './WindowService';
 import Rect from './WindowRect';
 
 export const Z_INDEX_BASE = 100;
@@ -25,7 +25,6 @@ export class WindowController {
   #zIndex = Z_INDEX_BASE;
   #active = true;
   #rect?: Rect;
-  #windowManager?: WindowManager;
   #windowElement?: HTMLDivElement;
   #onActiveChange?: (active: boolean) => void;
   #onStatusChange?: (status: WindowStatus) => void;
@@ -57,29 +56,30 @@ export class WindowController {
     this.#onStatusChange?.(value);
   }
 
+  constructor(private windowService: WindowService) {
+    this.#mouseShakeDetector = new MouseShakeDetector(() => windowService.onWindowShake());
+  }
+
   init(windowElement: HTMLDivElement,
     onActiveChange?: (active: boolean) => void,
     onStatusChange?: (status: WindowStatus) => void
   ) {
     this.#windowElement = windowElement;
-    this.#rect = new Rect(windowElement);
     this.#onActiveChange = onActiveChange;
     this.#onStatusChange = onStatusChange;
+    this.#rect = new Rect(windowElement);
+    this.#rect.width = 800;
+    this.#rect.height = 600;
+    this.#rect.left = Math.max(this.windowService.windowContainer!.clientWidth / 2 - this.#rect.width / 2, 0);
+    this.#rect.top = Math.max(this.windowService.windowContainer!.clientHeight / 2 - this.#rect.height / 2, 0);
+  }
+
+  setWindowActive(){
+    this.windowService.setWindowActive(this);
   }
 
   setStatus(status: WindowStatus) {
     this.status = status;
-  }
-
-  onRegister(windowManager: WindowManager) {
-    this.#windowManager = windowManager;
-    if(this.#rect){
-      this.#rect.width = 800;
-      this.#rect.height = 600;
-      this.#rect.left = Math.max(windowManager.windowContainer!.clientWidth / 2 - this.#rect.width / 2, 0);
-      this.#rect.top = Math.max(windowManager.windowContainer!.clientHeight / 2 - this.#rect.height / 2, 0);
-    }
-    this.#mouseShakeDetector = new MouseShakeDetector(() => windowManager.onWindowShake());
   }
 
   onDragStart(flag: number) {
@@ -132,7 +132,7 @@ export class WindowController {
     }
     if (this.#cropFlag & CropFlag.TOP) {
       if (event.clientY <= 0) {
-        this.#rect.height = this.#windowManager!.windowContainer!.clientHeight;
+        this.#rect.height = this.windowService!.windowContainer!.clientHeight;
       }
     }
     this.#drag = false;

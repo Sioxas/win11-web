@@ -1,8 +1,8 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
-import { WindowManagerContext } from './WindowManagerProvider';
 import { WindowStatus, WindowController, CropFlag } from './WindowController';
+import { WindowOptions } from './WindowService';
 
 import explorer from '@/assets/icons/explorer.png';
 
@@ -10,23 +10,17 @@ import './Window.less';
 
 interface WindowProps {
   children: React.ReactNode;
+  controller: WindowController;
+  options: WindowOptions;
 }
 
-export default function Window({ children }: WindowProps) {
+function Window({ children, controller, options }: WindowProps) {
   const [status, setStatus] = useState(WindowStatus.NORMAL);
   const [active, setActive] = useState(true);
   const windowRef = useRef<HTMLDivElement>(null);
 
-  const windowManager = useContext(WindowManagerContext);
-
-  const controller = useMemo(() => new WindowController(), []);
-
   useEffect(() => {
     controller.init(windowRef.current!, setActive, setStatus);
-    windowManager!.registerWindow(controller);
-    return () => {
-      windowManager!.unregisterWindow(controller);
-    }
   }, []);
 
   return <div ref={windowRef}
@@ -36,7 +30,7 @@ export default function Window({ children }: WindowProps) {
       'window-active': active,
       'window-inactive': !active,
     })}
-    onMouseDown={() => windowManager!.setWindowActive(controller)}
+    onMouseDown={() => controller.setWindowActive()}
   >
     <div className="window-title-bar">
       <div className="window-title-bar-dragable"
@@ -81,3 +75,5 @@ export default function Window({ children }: WindowProps) {
     {children}
   </div>;
 }
+
+export default React.memo(Window);
