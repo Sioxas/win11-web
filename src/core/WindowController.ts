@@ -1,28 +1,14 @@
 import MouseShakeDetector from '@/utils/MouseShakeDetector';
 import WindowService from './WindowService';
 import Rect from './WindowRect';
-
-export const Z_INDEX_BASE = 100;
-
-export enum WindowStatus {
-  NORMAL,
-  MINIMIZED,
-  MAXIMIZED,
-}
-
-export enum CropFlag {
-  TITLE_BAR = 0,
-  TOP = 1,
-  RIGHT = 2,
-  BOTTOM = 4,
-  LEFT = 8,
-}
+import { CropFlag, WindowStatus } from './enums';
+import { NORMAL_WINDOW_Z_INDEX_BASE } from './const';
 
 export class WindowController {
   #drag = false;
   #cropFlag = CropFlag.TITLE_BAR;
   #windowStatus = WindowStatus.NORMAL;
-  #zIndex = Z_INDEX_BASE;
+  #zIndex = NORMAL_WINDOW_Z_INDEX_BASE;
   #active = true;
   #rect?: Rect;
   #windowElement?: HTMLDivElement;

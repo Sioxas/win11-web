@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
-import { WindowStatus, WindowController, CropFlag } from './WindowController';
+import { WindowController } from './WindowController';
 import { WindowOptions } from './WindowService';
+import { WindowStatus, CropFlag } from './enums';
 
 import explorer from '@/assets/icons/explorer.png';
 

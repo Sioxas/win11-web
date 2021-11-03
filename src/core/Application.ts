@@ -1,5 +1,5 @@
-import { WindowController } from "@/window/WindowController";
-import WindowService from "@/window/WindowService";
+import { WindowController } from "@/core/WindowController";
+import WindowService from "@/core/WindowService";
 
 export enum LuanchSource {
   Desktop,
@@ -16,7 +16,7 @@ export default abstract class Application {
   public static readonly appVersion: string = '0.0.1';
   public static readonly appDescription: string = 'Application description';
 
-  constructor(private windowService: WindowService) {
+  constructor(protected windowService: WindowService) {
   }
 
   abstract luanch(from: LuanchSource, args: string[]): void;

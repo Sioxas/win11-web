@@ -20,7 +20,7 @@ const apps = [
   { name: 'vscode', icon: vscode, },
 ];
 
-export default function TaskBar() {
+export default function TaskBarView() {
   return <div className="task-bar">
     {apps.map(({name,icon})=><button key={name} className="task-bar-app-btn">
       <img width="22" src={icon} alt={name} />

@@ -1,18 +1,9 @@
 import React from "react";
-import Application from "@/application/Application";
-import { WindowController, WindowStatus, Z_INDEX_BASE } from "./WindowController";
 
-export enum WindowType {
-  NORMAL,
-  FULLSCREEN,
-  BORDER_LESS,
-}
-
-export enum WindowLevel {
-  TOP,
-  MIDDLE,
-  BOTTOM,
-}
+import Application from "@/core/Application";
+import { WindowController } from "./WindowController";
+import { WindowType, WindowLevel, WindowStatus } from "./enums";
+import { NORMAL_WINDOW_Z_INDEX_BASE } from "./const";
 
 export interface WindowOptions {
   type?: WindowType;
@@ -66,7 +57,7 @@ export default class WindowService {
   }
 
   setWindowActive(windowController: WindowController) {
-    const startIndex = windowController.zIndex - Z_INDEX_BASE;
+    const startIndex = windowController.zIndex - NORMAL_WINDOW_Z_INDEX_BASE;
     // remove window from this.#windows
     this.#controllers.splice(startIndex, 1);
     if (this.#activeWindow) {
@@ -75,7 +66,7 @@ export default class WindowService {
     this.#controllers.push(windowController);
     // update zIndex
     for (let i = startIndex; i < this.#controllers.length; i++) {
-      this.#controllers[i].zIndex = i + Z_INDEX_BASE;
+      this.#controllers[i].zIndex = i + NORMAL_WINDOW_Z_INDEX_BASE;
     }
     windowController.active = true;
     this.#activeWindow = windowController;
@@ -94,7 +85,7 @@ export default class WindowService {
   ) {
     const windowController = new WindowController(this);
     this.#views.set(windowController, { options, component, props });
-    windowController.zIndex = this.#controllers.length + Z_INDEX_BASE;
+    windowController.zIndex = this.#controllers.length + NORMAL_WINDOW_Z_INDEX_BASE;
     this.#controllers.push(windowController);
     if (this.#activeWindow) {
       this.#activeWindow.active = false;
@@ -106,13 +97,13 @@ export default class WindowService {
   }
 
   closeWindow(windowController: WindowController) {
-    const startIndex = windowController.zIndex - Z_INDEX_BASE;
+    const startIndex = windowController.zIndex - NORMAL_WINDOW_Z_INDEX_BASE;
     // remove windowController from windows
     this.#controllers.splice(startIndex, 1);
     this.#views.delete(windowController);
     // update zIndex
     for (let i = startIndex; i < this.#controllers.length; i++) {
-      this.#controllers[i].zIndex = i + Z_INDEX_BASE;
+      this.#controllers[i].zIndex = i + NORMAL_WINDOW_Z_INDEX_BASE;
     }
     // set last window active
     if (this.#controllers.length > 0) {
@@ -121,7 +112,7 @@ export default class WindowService {
       this.#activeWindow = lastWindow;
     }
     this.#triggerViewsChange();
-    }
+  }
 
   #windowsStatus = new Array<WindowStatus>();
 
