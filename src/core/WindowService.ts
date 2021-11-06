@@ -1,19 +1,28 @@
 import React from "react";
+import { omitBy, isNil } from "lodash-es";
 
-import Application from "@/core/Application";
+import Application from "./Application";
 import { WindowController } from "./WindowController";
 import { WindowType, WindowLevel, WindowStatus } from "./enums";
-import { NORMAL_WINDOW_Z_INDEX_BASE } from "./const";
 
 export interface WindowOptions {
   type?: WindowType;
   level?: WindowLevel;
-  title?: string;
+  title: string;
   width?: number;
   height?: number;
+  resizeable?: boolean;
 }
 
-export interface WindowViewProps<T extends Application>{
+const defaultOptions = {
+  type: WindowType.NORMAL,
+  level: WindowLevel.MIDDLE,
+  width: 800,
+  height: 600,
+  resizeable: true
+};
+
+export interface WindowViewProps<T extends Application> {
   controller: WindowController;
   application: T;
 }
@@ -26,9 +35,7 @@ export interface WindowViewConfig<T extends Application = Application, P = any> 
 
 export default class WindowService {
 
-  #controllers = new Array<WindowController>();
-
-  #views = new Map<WindowController, WindowViewConfig>();
+  #windows = new Map<WindowController, WindowViewConfig>();
 
   #activeWindow: WindowController | null = null;
 
@@ -36,8 +43,8 @@ export default class WindowService {
 
   constructor(private onViewsChange?: (windows: [WindowController, WindowViewConfig][]) => void) {
     document.body.addEventListener('pointermove', (event) => this.#onDragMove(event));
-    document.body.addEventListener('pointerup',  (event) => this.#onDragStop(event));
-    document.body.addEventListener('pointerleave',  (event) => this.#onDragStop(event));
+    document.body.addEventListener('pointerup', (event) => this.#onDragStop(event));
+    document.body.addEventListener('pointerleave', (event) => this.#onDragStop(event));
   }
 
   init(windowContainer: HTMLDivElement) {
@@ -45,11 +52,12 @@ export default class WindowService {
   }
 
   setWindowInactive(windowController: WindowController) {
-    if(this.#activeWindow === windowController) {
+    const controllers = this.#getControllersByLevel(windowController.level);
+    if (this.#activeWindow === windowController) {
       // find last non-minimized window
-      for(let i = this.#controllers.length - 1; i >= 0; i--) {
-        if(this.#controllers[i].status !== WindowStatus.MINIMIZED) {
-          this.setWindowActive(this.#controllers[i]);
+      for (let i = controllers.length - 1; i >= 0; i--) {
+        if (controllers[i].status !== WindowStatus.MINIMIZED) {
+          this.setWindowActive(controllers[i]);
           break;
         }
       }
@@ -57,36 +65,37 @@ export default class WindowService {
   }
 
   setWindowActive(windowController: WindowController) {
-    const startIndex = windowController.zIndex - NORMAL_WINDOW_Z_INDEX_BASE;
+    const controllers = this.#getControllersByLevel(windowController.level);
+    const startIndex = windowController.zIndex;
     // remove window from this.#windows
-    this.#controllers.splice(startIndex, 1);
+    controllers.splice(startIndex, 1);
     if (this.#activeWindow) {
       this.#activeWindow.active = false;
     }
-    this.#controllers.push(windowController);
+    controllers.push(windowController);
     // update zIndex
-    for (let i = startIndex; i < this.#controllers.length; i++) {
-      this.#controllers[i].zIndex = i + NORMAL_WINDOW_Z_INDEX_BASE;
+    for (let i = startIndex; i < controllers.length; i++) {
+      controllers[i].zIndex = i;
     }
     windowController.active = true;
     this.#activeWindow = windowController;
   }
 
   #triggerViewsChange() {
-    if(this.onViewsChange) {
-      this.onViewsChange(Array.from(this.#views.entries()));
-    }
+    this.onViewsChange?.(Array.from(this.#windows.entries()));
   }
 
   createWindow<T extends Application, P>(
-    options: WindowOptions, 
-    component: React.ComponentType<P & WindowViewProps<T>>, 
+    options: WindowOptions,
+    component: React.ComponentType<P & WindowViewProps<T>>,
     props?: P
   ) {
+    const windowOptions = { ...defaultOptions, ...omitBy(options, isNil) };
+    const controllers = this.#getControllersByLevel(windowOptions.level);
     const windowController = new WindowController(this);
-    this.#views.set(windowController, { options, component, props });
-    windowController.zIndex = this.#controllers.length + NORMAL_WINDOW_Z_INDEX_BASE;
-    this.#controllers.push(windowController);
+    windowController.level = windowOptions.level;
+    windowController.zIndex = controllers.length;
+    this.#windows.set(windowController, { options, component, props });
     if (this.#activeWindow) {
       this.#activeWindow.active = false;
     }
@@ -97,51 +106,58 @@ export default class WindowService {
   }
 
   closeWindow(windowController: WindowController) {
-    const startIndex = windowController.zIndex - NORMAL_WINDOW_Z_INDEX_BASE;
+    const controllers = this.#getControllersByLevel(windowController.level);
+    const startIndex = windowController.zIndex;
     // remove windowController from windows
-    this.#controllers.splice(startIndex, 1);
-    this.#views.delete(windowController);
+    controllers.splice(startIndex, 1);
+    this.#windows.delete(windowController);
     // update zIndex
-    for (let i = startIndex; i < this.#controllers.length; i++) {
-      this.#controllers[i].zIndex = i + NORMAL_WINDOW_Z_INDEX_BASE;
-    }
-    // set last window active
-    if (this.#controllers.length > 0) {
-      const lastWindow = this.#controllers[this.#controllers.length - 1];
-      lastWindow.active = true;
-      this.#activeWindow = lastWindow;
+    for (let i = startIndex; i < controllers.length; i++) {
+      controllers[i].zIndex = i;
+      // set last window active
+      if (i === controllers.length - 1) {
+        controllers[i].active = true;
+        this.#activeWindow = controllers[i];
+      }
     }
     this.#triggerViewsChange();
   }
 
-  #windowsStatus = new Array<WindowStatus>();
+  #windowsStatus = new Map<WindowController, WindowStatus>();
 
-  onWindowShake(){
-    if(this.#controllers.length < 1) return;
+  onWindowShake() {
+    if (this.#windows.size < 1) return;
 
     // if there is any window not minimized except the active window
     let anyWindowNotMinimized = false;
-    for(let i = 0; i < this.#controllers.length - 1; i++) {
-      if(this.#controllers[i].status !== WindowStatus.MINIMIZED) {
+    for (const [controller] of this.#windows) {
+      if (controller.status !== WindowStatus.MINIMIZED && controller !== this.#activeWindow) {
         anyWindowNotMinimized = true;
         break;
       }
     }
 
-    if(anyWindowNotMinimized) {
+    if (anyWindowNotMinimized) {
       // store windows status
-      this.#windowsStatus = this.#controllers.map(window => window.status);
-
-      // set all windows minimized except last one
-      for(let i = 0; i < this.#controllers.length - 1; i++) {
-        this.#controllers[i].status = WindowStatus.MINIMIZED;
+      for (const [controller] of this.#windows) {
+        this.#windowsStatus.set(controller, controller.status);
+        if (controller !== this.#activeWindow) {
+          controller.status = WindowStatus.MINIMIZED;
+        }
       }
     } else {
       // restore windows status
-      for(let i = 0; i < this.#controllers.length - 1; i++) {
-        this.#controllers[i].status = this.#windowsStatus[i];
+      for (const [constroller, status] of this.#windowsStatus) {
+        constroller.status = status;
       }
+      this.#windowsStatus.clear();
     }
+  }
+
+  #getControllersByLevel(level: WindowLevel) {
+    return Array.from(this.#windows.keys())
+      .filter(controller => controller.level === level)
+      .sort((a, b) => a.zIndex - b.zIndex);
   }
 
   #onDragMove(event: MouseEvent) {

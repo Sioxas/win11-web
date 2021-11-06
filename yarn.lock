@@ -260,6 +260,18 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
+"@types/lodash-es@^4.17.5":
+  version "4.17.5"
+  resolved "https://registry.nlark.com/@types/lodash-es/download/@types/lodash-es-4.17.5.tgz#1c3fdd16849d84aea43890b1c60da379fb501353"
+  integrity sha1-HD/dFoSdhK6kOJCxxg2jeftQE1M=
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.176"
+  resolved "https://registry.npmmirror.com/@types/lodash/download/@types/lodash-4.14.176.tgz#641150fc1cda36fbfa329de603bbb175d7ee20c0"
+  integrity sha1-ZBFQ/BzaNvv6Mp3mA7uxddfuIMA=
+
 "@types/prop-types@*":
   version "15.7.4"
   resolved "https://registry.nlark.com/@types/prop-types/download/@types/prop-types-15.7.4.tgz?cache=0&sync_timestamp=1629708737049&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Fprop-types%2Fdownload%2F%40types%2Fprop-types-15.7.4.tgz#fcf7205c25dff795ee79af1e30da2c9790808f11"
@@ -605,6 +617,11 @@ less@^4.1.2:
     mime "^1.4.1"
     needle "^2.5.2"
     source-map "~0.6.0"
+
+lodash-es@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.nlark.com/lodash-es/download/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
+  integrity sha1-Q+YmxG5lkbd1C+srUBFzkMYJ4+4=
 
 loose-envify@^1.1.0:
   version "1.4.0"

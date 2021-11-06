@@ -1,21 +1,27 @@
 import MouseShakeDetector from '@/utils/MouseShakeDetector';
 import WindowService from './WindowService';
 import Rect from './WindowRect';
-import { CropFlag, WindowStatus } from './enums';
-import { NORMAL_WINDOW_Z_INDEX_BASE } from './const';
+import { CropFlag, WindowLevel, WindowStatus } from './enums';
 
 export class WindowController {
   #drag = false;
   #cropFlag = CropFlag.TITLE_BAR;
-  #windowStatus = WindowStatus.NORMAL;
-  #zIndex = NORMAL_WINDOW_Z_INDEX_BASE;
-  #active = true;
   #rect?: Rect;
   #windowElement?: HTMLDivElement;
   #onActiveChange?: (active: boolean) => void;
   #onStatusChange?: (status: WindowStatus) => void;
+  #onLevelChange?: (level: WindowLevel) => void;
   #mouseShakeDetector?: MouseShakeDetector;
 
+  #level: WindowLevel = WindowLevel.MIDDLE;
+  set level(value: WindowLevel) {
+    this.#onLevelChange?.(this.#level = value);
+  }
+  get level() {
+    return this.#level;
+  }
+
+  #zIndex = 0;
   set zIndex(zIndex: number) {
     if(this.#windowElement) {
       this.#windowElement.style.zIndex = zIndex.toString();
@@ -26,6 +32,7 @@ export class WindowController {
     return this.#zIndex;
   }
 
+  #active = true;
   set active(value: boolean) {
     this.#onActiveChange?.(this.#active = value);
   }
@@ -33,10 +40,10 @@ export class WindowController {
     return this.#active;
   }
 
+  #windowStatus = WindowStatus.NORMAL;
   get status() {
     return this.#windowStatus;
   }
-
   set status(value: WindowStatus) {
     this.#windowStatus = value;
     this.#onStatusChange?.(value);
@@ -48,11 +55,13 @@ export class WindowController {
 
   init(windowElement: HTMLDivElement,
     onActiveChange?: (active: boolean) => void,
-    onStatusChange?: (status: WindowStatus) => void
+    onStatusChange?: (status: WindowStatus) => void,
+    onLevelChange?: (level: WindowLevel) => void
   ) {
     this.#windowElement = windowElement;
     this.#onActiveChange = onActiveChange;
     this.#onStatusChange = onStatusChange;
+    this.#onLevelChange = onLevelChange;
     this.#rect = new Rect(windowElement);
     this.#rect.width = 800;
     this.#rect.height = 600;
