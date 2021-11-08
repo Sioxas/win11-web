@@ -22,7 +22,7 @@ export default function WindowsContainer() {
     <div className="windows-container-wrapper">
       <div ref={windowContainerRef} className="windows-container">
         {windows.map(([controller, config]) => (
-          <Window controller={controller} options={config.options}>
+          <Window controller={controller}>
             <config.component {...config.props} />
           </Window>
         ))}

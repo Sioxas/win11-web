@@ -1,25 +1,28 @@
 .window{
-  border-radius: 8px;
-  border-width: 1px;
-  border-style: solid;
-  overflow: hidden;
   transition: transform .2s, opacity .2s;
   position: absolute;
   box-sizing: border-box;
-  &-active{
-    border-color: var(--primary-color);
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    backdrop-filter: blur(16px);
-    background-color: rgba(255, 255, 255, 0.8);
-  }
-  &-inactive{
-    border-color: var(--main-border-color);
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 3px 15px 0px;
-    background-color: var(--main-bg-color);
-    .window-title-bar{
-      color:var(--tertiary-text-color);
+  &-border{
+    border-radius: 8px;
+    border-width: 1px;
+    border-style: solid;
+    overflow: hidden;
+    .window-active{
+      border-color: var(--primary-color);
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+      backdrop-filter: blur(16px);
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+    .window-inactive{
+      border-color: var(--main-border-color);
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 3px 15px 0px;
+      background-color: var(--main-bg-color);
+      .window-title-bar{
+        color:var(--tertiary-text-color);
+      }
     }
   }
+  
   &-maximize{
     width: 100% !important;
     height: 100% !important;

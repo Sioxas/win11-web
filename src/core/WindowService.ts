@@ -3,23 +3,30 @@ import { omitBy, isNil } from "lodash-es";
 
 import Application from "./Application";
 import { WindowController } from "./WindowController";
-import { WindowType, WindowLevel, WindowStatus } from "./enums";
+import { WindowType, WindowLevel, WindowStatus, WindowControlButton } from './enums';
+
+interface WindowTitleBar{
+  title: string;
+  icon: string;
+}
 
 export interface WindowOptions {
   type?: WindowType;
   level?: WindowLevel;
-  title: string;
   width?: number;
   height?: number;
   resizeable?: boolean;
+  titleBar?: false | WindowTitleBar;
+  controlButton?: number;
 }
 
-const defaultOptions = {
+const defaultOptions: WindowOptions = {
   type: WindowType.NORMAL,
   level: WindowLevel.MIDDLE,
   width: 800,
   height: 600,
-  resizeable: true
+  resizeable: true,
+  controlButton: WindowControlButton.CLOSE | WindowControlButton.MINIMIZE | WindowControlButton.MAXIMIZE
 };
 
 export interface WindowViewProps<T extends Application> {
@@ -28,7 +35,6 @@ export interface WindowViewProps<T extends Application> {
 }
 
 export interface WindowViewConfig<T extends Application = Application, P = any> {
-  options: WindowOptions;
   component: React.ComponentType<P & WindowViewProps<T>>;
   props?: P;
 }
@@ -49,6 +55,44 @@ export default class WindowService {
 
   init(windowContainer: HTMLDivElement) {
     this.windowContainer = windowContainer;
+  }
+
+  createWindow<T extends Application, P>(
+    options: WindowOptions,
+    component: React.ComponentType<P & WindowViewProps<T>>,
+    props?: P
+  ) {
+    // TODO: get application name and icon as title bar by default
+    const windowOptions = { ...defaultOptions, ...omitBy(options, isNil) } as Required<WindowOptions>;
+    const controllers = this.#getControllersByLevel(windowOptions.level);
+    const windowController = new WindowController(this, windowOptions);
+    windowController.zIndex = controllers.length;
+    this.#windows.set(windowController, { component, props });
+    if (this.#activeWindow) {
+      this.#activeWindow.active = false;
+    }
+    windowController.active = true;
+    this.#activeWindow = windowController;
+    this.#triggerViewsChange();
+    return windowController;
+  }
+
+  closeWindow(windowController: WindowController) {
+    const controllers = this.#getControllersByLevel(windowController.level);
+    const startIndex = windowController.zIndex;
+    // remove windowController from windows
+    controllers.splice(startIndex, 1);
+    this.#windows.delete(windowController);
+    // update zIndex
+    for (let i = startIndex; i < controllers.length; i++) {
+      controllers[i].zIndex = i;
+      // set last window active
+      if (i === controllers.length - 1) {
+        controllers[i].active = true;
+        this.#activeWindow = controllers[i];
+      }
+    }
+    this.#triggerViewsChange();
   }
 
   setWindowInactive(windowController: WindowController) {
@@ -83,44 +127,6 @@ export default class WindowService {
 
   #triggerViewsChange() {
     this.onViewsChange?.(Array.from(this.#windows.entries()));
-  }
-
-  createWindow<T extends Application, P>(
-    options: WindowOptions,
-    component: React.ComponentType<P & WindowViewProps<T>>,
-    props?: P
-  ) {
-    const windowOptions = { ...defaultOptions, ...omitBy(options, isNil) };
-    const controllers = this.#getControllersByLevel(windowOptions.level);
-    const windowController = new WindowController(this);
-    windowController.level = windowOptions.level;
-    windowController.zIndex = controllers.length;
-    this.#windows.set(windowController, { options, component, props });
-    if (this.#activeWindow) {
-      this.#activeWindow.active = false;
-    }
-    windowController.active = true;
-    this.#activeWindow = windowController;
-    this.#triggerViewsChange();
-    return windowController;
-  }
-
-  closeWindow(windowController: WindowController) {
-    const controllers = this.#getControllersByLevel(windowController.level);
-    const startIndex = windowController.zIndex;
-    // remove windowController from windows
-    controllers.splice(startIndex, 1);
-    this.#windows.delete(windowController);
-    // update zIndex
-    for (let i = startIndex; i < controllers.length; i++) {
-      controllers[i].zIndex = i;
-      // set last window active
-      if (i === controllers.length - 1) {
-        controllers[i].active = true;
-        this.#activeWindow = controllers[i];
-      }
-    }
-    this.#triggerViewsChange();
   }
 
   #windowsStatus = new Map<WindowController, WindowStatus>();

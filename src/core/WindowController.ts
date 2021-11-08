@@ -1,11 +1,12 @@
 import MouseShakeDetector from '@/utils/MouseShakeDetector';
 import WindowService from './WindowService';
 import Rect from './WindowRect';
-import { CropFlag, WindowLevel, WindowStatus } from './enums';
+import { WindowResizer, WindowLevel, WindowStatus, WindowType } from './enums';
+import { WindowOptions } from './WindowService';
 
 export class WindowController {
   #drag = false;
-  #cropFlag = CropFlag.TITLE_BAR;
+  #resizer = WindowResizer.NONE;
   #rect?: Rect;
   #windowElement?: HTMLDivElement;
   #onActiveChange?: (active: boolean) => void;
@@ -24,7 +25,7 @@ export class WindowController {
   #zIndex = 0;
   set zIndex(zIndex: number) {
     if(this.#windowElement) {
-      this.#windowElement.style.zIndex = zIndex.toString();
+      this.#windowElement.style.zIndex = zIndex + this.#level + '';
     }
     this.#zIndex = zIndex;
   }
@@ -49,7 +50,10 @@ export class WindowController {
     this.#onStatusChange?.(value);
   }
 
-  constructor(private windowService: WindowService) {
+  constructor(
+    private windowService: WindowService, 
+    public options: Required<WindowOptions>
+  ) {
     this.#mouseShakeDetector = new MouseShakeDetector(() => windowService.onWindowShake());
   }
 
@@ -63,10 +67,17 @@ export class WindowController {
     this.#onStatusChange = onStatusChange;
     this.#onLevelChange = onLevelChange;
     this.#rect = new Rect(windowElement);
-    this.#rect.width = 800;
-    this.#rect.height = 600;
-    this.#rect.left = Math.max(this.windowService.windowContainer!.clientWidth / 2 - this.#rect.width / 2, 0);
-    this.#rect.top = Math.max(this.windowService.windowContainer!.clientHeight / 2 - this.#rect.height / 2, 0);
+    if(this.options.type === WindowType.FULLSCREEN) {
+      this.#rect.width = window.innerWidth;
+      this.#rect.height = window.innerHeight;
+      this.#rect.left = 0;
+      this.#rect.top = 0;
+    } else {
+      this.#rect.width = this.options.width;
+      this.#rect.height = this.options.height;
+      this.#rect.left = Math.max(this.windowService.windowContainer!.clientWidth / 2 - this.#rect.width / 2, 0);
+      this.#rect.top = Math.max(this.windowService.windowContainer!.clientHeight / 2 - this.#rect.height / 2, 0);
+    }
   }
 
   setWindowActive(){
@@ -77,9 +88,9 @@ export class WindowController {
     this.status = status;
   }
 
-  onDragStart(flag: number) {
+  onDragStart(resizer: number) {
     this.#drag = true;
-    this.#cropFlag = flag;
+    this.#resizer = resizer;
   }
 
   onDragMove(event: MouseEvent) {
@@ -88,7 +99,7 @@ export class WindowController {
     this.#mouseShakeDetector?.move(event);
     const Δx = event.movementX / devicePixelRatio;
     const Δy = event.movementY / devicePixelRatio;
-    if (this.#cropFlag === CropFlag.TITLE_BAR) {
+    if (this.#resizer === WindowResizer.NONE) { // drag title bar
       if (this.status === WindowStatus.MAXIMIZED) {
         this.status = WindowStatus.NORMAL;
         this.#rect.left = event.clientX - this.#rect.width / 2;
@@ -98,17 +109,17 @@ export class WindowController {
       this.#rect.top += Δy;
       return;
     }
-    if (this.#cropFlag & CropFlag.TOP) {
+    if (this.#resizer & WindowResizer.TOP) {
       this.#rect.top += Δy;
       this.#rect.height -= Δy;
     }
-    if (this.#cropFlag & CropFlag.RIGHT) {
+    if (this.#resizer & WindowResizer.RIGHT) {
       this.#rect.width += Δx;
     }
-    if (this.#cropFlag & CropFlag.BOTTOM) {
+    if (this.#resizer & WindowResizer.BOTTOM) {
       this.#rect.height += Δy;
     }
-    if (this.#cropFlag & CropFlag.LEFT) {
+    if (this.#resizer & WindowResizer.LEFT) {
       this.#rect.left += Δx;
       this.#rect.width -= Δx;
     }
@@ -117,7 +128,7 @@ export class WindowController {
   onDragStop(event: MouseEvent) {
     if(!this.#rect) return;
     if (!this.#drag) return;
-    if (this.#cropFlag === CropFlag.TITLE_BAR) {
+    if (this.#resizer === WindowResizer.NONE) {
       if (event.clientY <= 0) {
         this.status = WindowStatus.MAXIMIZED;
       }
@@ -125,12 +136,12 @@ export class WindowController {
         this.#rect.top = 0;
       }
     }
-    if (this.#cropFlag & CropFlag.TOP) {
+    if (this.#resizer & WindowResizer.TOP) {
       if (event.clientY <= 0) {
         this.#rect.height = this.windowService!.windowContainer!.clientHeight;
       }
     }
     this.#drag = false;
-    this.#cropFlag = 0;
+    this.#resizer = 0;
   }
 }
