@@ -3,12 +3,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import WindowService, { WindowViewConfig } from './WindowService';
 import { WindowController } from './WindowController';
 import Window from './Window';
+import Application from './Application';
 
 import './WindowsContainer.less';
 
 export default function WindowsContainer() {
 
-  const [windows, setWindows] = useState<[WindowController, WindowViewConfig][]>([]);
+  const [windows, setWindows] = useState<[WindowController<Application>, WindowViewConfig][]>([]);
 
   const windowContainerRef = useRef<HTMLDivElement>(null);
 

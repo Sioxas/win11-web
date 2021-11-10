@@ -268,10 +268,15 @@
   resolved "https://registry.npmmirror.com/@microsoft/fast-colors/download/@microsoft/fast-colors-5.1.3.tgz#5c46147401a823835a3833e3e18dae7f06016966"
   integrity sha1-XEYUdAGoI4NaODPj4Y2ufwYBaWY=
 
-"@microsoft/fast-element@^1.6.0", "@microsoft/fast-element@^1.6.2":
+"@microsoft/fast-element@^1.6.0":
   version "1.6.1"
   resolved "https://registry.npmmirror.com/@microsoft/fast-element/download/@microsoft/fast-element-1.6.1.tgz#53cf476fc4cf3ea5ac90a51c1032b782f4ee9611"
   integrity sha1-U89Hb8TPPqWskKUcEDK3gvTulhE=
+
+"@microsoft/fast-element@^1.6.2":
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@microsoft/fast-element/-/fast-element-1.6.2.tgz#414abc9f49fde85e12002e01025c5cc3dddc16ac"
+  integrity sha512-TrFOpe9k9xIK2iLfIG5T2+bavUAWBvAC/KQ/3ecFsK65l9PAZ/j3zlkyLxNrpIksFtUBkfVdV03kwFurZjqzKQ==
 
 "@microsoft/fast-foundation@^2.24.0":
   version "2.25.1"

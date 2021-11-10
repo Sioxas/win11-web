@@ -5,10 +5,10 @@ import Wallpaper from './Wallpaper';
 
 export default class Desktop extends Application {
 
-  #wallpaper?: WindowController;
+  #wallpaper?: WindowController<this>;
 
   luanch(from: LuanchSource, args: string[]): void {
-    this.#wallpaper = this.windowService.createWindow({
+    this.#wallpaper = this.createWindow({
       type: WindowType.FULLSCREEN,
       level:WindowLevel.BOTTOM,
       titleBar: false,
@@ -16,10 +16,9 @@ export default class Desktop extends Application {
     
   }
 
-  onClose(controller: WindowController): void {
+  onClose(controller: WindowController<Desktop>): void {
     if (this.#wallpaper === controller) {
-      this.windowService.closeWindow(this.#wallpaper);
+      this.closeWindow(this.#wallpaper);
     }
   }
-
 }

@@ -10,18 +10,12 @@ export default class Explorer extends Application{
   public static readonly appVersion: string = '0.0.1';
   public static readonly appDescription: string = '文件资源管理器';
 
-  #windows = new Set<WindowController>();
-
   luanch(from: LuanchSource, args: string[]): void {
-    const controller = this.windowService.createWindow({
-      title: 'Explorer',
-    }, ExplorerView);
-    this.#windows.add(controller);
+    this.createWindow({}, ExplorerView);
   }
 
-  onClose(controller: WindowController): void {
-    this.windowService.closeWindow(controller);
-    this.#windows.delete(controller);
+  onClose(controller: WindowController<this>): void {
+    this.closeWindow(controller);
   }
   
 }

@@ -30,7 +30,7 @@ const defaultOptions: WindowOptions = {
 };
 
 export interface WindowViewProps<T extends Application> {
-  controller: WindowController;
+  controller: WindowController<T>;
   application: T;
 }
 
@@ -41,13 +41,13 @@ export interface WindowViewConfig<T extends Application = Application, P = any> 
 
 export default class WindowService {
 
-  #windows = new Map<WindowController, WindowViewConfig>();
+  #windows = new Map<WindowController<Application>, WindowViewConfig>();
 
-  #activeWindow: WindowController | null = null;
+  #activeWindow: WindowController<Application> | null = null;
 
   public windowContainer?: HTMLDivElement;
 
-  constructor(private onViewsChange?: (windows: [WindowController, WindowViewConfig][]) => void) {
+  constructor(private onViewsChange?: (windows: [WindowController<Application>, WindowViewConfig][]) => void) {
     document.body.addEventListener('pointermove', (event) => this.#onDragMove(event));
     document.body.addEventListener('pointerup', (event) => this.#onDragStop(event));
     document.body.addEventListener('pointerleave', (event) => this.#onDragStop(event));
@@ -58,14 +58,20 @@ export default class WindowService {
   }
 
   createWindow<T extends Application, P>(
+    application: T,
     options: WindowOptions,
     component: React.ComponentType<P & WindowViewProps<T>>,
     props?: P
   ) {
-    // TODO: get application name and icon as title bar by default
     const windowOptions = { ...defaultOptions, ...omitBy(options, isNil) } as Required<WindowOptions>;
+    if(options.titleBar === undefined){
+      windowOptions.titleBar = {
+        title: (<typeof Application>application.constructor).appName,
+        icon: (<typeof Application>application.constructor).appIcon
+      }
+    }
     const controllers = this.#getControllersByLevel(windowOptions.level);
-    const windowController = new WindowController(this, windowOptions);
+    const windowController = new WindowController(this, windowOptions, application);
     windowController.zIndex = controllers.length;
     this.#windows.set(windowController, { component, props });
     if (this.#activeWindow) {
@@ -77,7 +83,7 @@ export default class WindowService {
     return windowController;
   }
 
-  closeWindow(windowController: WindowController) {
+  closeWindow(windowController: WindowController<Application>) {
     const controllers = this.#getControllersByLevel(windowController.level);
     const startIndex = windowController.zIndex;
     // remove windowController from windows
@@ -95,7 +101,7 @@ export default class WindowService {
     this.#triggerViewsChange();
   }
 
-  setWindowInactive(windowController: WindowController) {
+  setWindowInactive(windowController: WindowController<Application>) {
     const controllers = this.#getControllersByLevel(windowController.level);
     if (this.#activeWindow === windowController) {
       // find last non-minimized window
@@ -108,7 +114,7 @@ export default class WindowService {
     }
   }
 
-  setWindowActive(windowController: WindowController) {
+  setWindowActive(windowController: WindowController<Application>) {
     const controllers = this.#getControllersByLevel(windowController.level);
     const startIndex = windowController.zIndex;
     // remove window from this.#windows
@@ -129,7 +135,7 @@ export default class WindowService {
     this.onViewsChange?.(Array.from(this.#windows.entries()));
   }
 
-  #windowsStatus = new Map<WindowController, WindowStatus>();
+  #windowsStatus = new Map<WindowController<Application>, WindowStatus>();
 
   onWindowShake() {
     if (this.#windows.size < 1) return;

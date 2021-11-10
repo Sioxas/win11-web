@@ -3,15 +3,16 @@ import classNames from 'classnames';
 
 import { WindowController } from './WindowController';
 import { WindowStatus, WindowResizer, WindowControlButton, WindowType } from './enums';
+import Application from './Application';
 
 import './Window.less';
 
-interface WindowProps {
+interface WindowProps<T extends Application> {
   children: React.ReactNode;
-  controller: WindowController;
+  controller: WindowController<T>;
 }
 
-function Window({ children, controller }: WindowProps) {
+function Window<T extends Application>({ children, controller }: WindowProps<T>) {
   const [status, setStatus] = useState(WindowStatus.NORMAL);
   const [active, setActive] = useState(true);
   const windowRef = useRef<HTMLDivElement>(null);

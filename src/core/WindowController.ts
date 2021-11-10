@@ -3,8 +3,9 @@ import WindowService from './WindowService';
 import Rect from './WindowRect';
 import { WindowResizer, WindowLevel, WindowStatus, WindowType } from './enums';
 import { WindowOptions } from './WindowService';
+import Application from './Application';
 
-export class WindowController {
+export class WindowController<T extends Application> {
   #drag = false;
   #resizer = WindowResizer.NONE;
   #rect?: Rect;
@@ -52,7 +53,8 @@ export class WindowController {
 
   constructor(
     private windowService: WindowService, 
-    public options: Required<WindowOptions>
+    public options: Required<WindowOptions>,
+    public application: T,
   ) {
     this.#mouseShakeDetector = new MouseShakeDetector(() => windowService.onWindowShake());
   }
