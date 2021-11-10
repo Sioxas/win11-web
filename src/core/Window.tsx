@@ -48,10 +48,8 @@ function Window({ children, controller }: WindowProps) {
           </div>
         }
         {
-          controlButton & WindowControlButton.MINIMIZE && <div className="window-title-bar-resizer"
-            onClick={() => controller.setStatus(WindowStatus.MINIMIZED)}
-          >
-            <span className="iconfont icon-minimize" />
+          controlButton & WindowControlButton.CLOSE && <div className="window-title-bar-resizer">
+            <span className="iconfont icon-close" />
           </div>
         }
         {
@@ -69,8 +67,10 @@ function Window({ children, controller }: WindowProps) {
           </>
         }
         {
-          controlButton & WindowControlButton.CLOSE && <div className="window-title-bar-resizer">
-            <span className="iconfont icon-close" />
+          controlButton & WindowControlButton.MINIMIZE && <div className="window-title-bar-resizer"
+            onClick={() => controller.setStatus(WindowStatus.MINIMIZED)}
+          >
+            <span className="iconfont icon-minimize" />
           </div>
         }
       </>
