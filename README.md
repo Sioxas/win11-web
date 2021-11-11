@@ -17,4 +17,4 @@ WIP
 - Terminal
 - Browser
 - VMs
-- Caculator
+- Calculator
