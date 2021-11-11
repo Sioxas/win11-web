@@ -5,7 +5,7 @@ export enum WindowType {
 }
 
 export enum WindowLevel {
-  TOP = 1000,
+  TOP = 200,
   MIDDLE = 100,
   BOTTOM = 0,
 }
