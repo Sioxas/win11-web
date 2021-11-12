@@ -5,9 +5,8 @@ export enum ContextMenuType {
 }
 
 export interface ContextMenuItem {
-  type: ContextMenuType;
-  key: string;
   text: string;
+  type?: ContextMenuType;
   icon?: string;
   shortcut?: string;
   checked?: boolean;

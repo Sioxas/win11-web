@@ -311,16 +311,6 @@
   resolved "https://registry.nlark.com/@microsoft/tsdoc/download/@microsoft/tsdoc-0.12.24.tgz#30728e34ebc90351dd3aff4e18d038eed2c3e098"
   integrity sha1-MHKONOvJA1HdOv9OGNA47tLD4Jg=
 
-"@react-rxjs/core@^0.8.4":
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/@react-rxjs/core/-/core-0.8.4.tgz#26f6fe3c64014097b487fdd5aa7e36577e5c333a"
-  integrity sha512-n+aa0sSrzj3ctBgmHl13nz0a4nKzcDmu+z+WgUtOmRp7niAzs+f02t2D/FyEfvs0Fp1Zq7z2hh5HM2LBlQPAhA==
-
-"@react-rxjs/utils@^0.9.3":
-  version "0.9.3"
-  resolved "https://registry.yarnpkg.com/@react-rxjs/utils/-/utils-0.9.3.tgz#1762b7146aa6c32677fe1863cf7213d1f7622d22"
-  integrity sha512-arwh1iW+5ciE/fdWwrXXYXF1anyGqBU1WkxvKGZkfxO2sNk+45t9glzHLDWkOUSrMaQeonuTw3vSg7qK/xhJCg==
-
 "@rollup/pluginutils@^4.1.1":
   version "4.1.1"
   resolved "https://registry.nlark.com/@rollup/pluginutils/download/@rollup/pluginutils-4.1.1.tgz#1d4da86dd4eded15656a57d933fda2b9a08d47ec"
@@ -792,6 +782,11 @@ object-assign@^4.1.1:
   version "4.1.1"
   resolved "https://registry.nlark.com/object-assign/download/object-assign-4.1.1.tgz?cache=0&sync_timestamp=1618846798176&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fobject-assign%2Fdownload%2Fobject-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
   integrity sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
+
+observable-hooks@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/observable-hooks/-/observable-hooks-4.1.2.tgz#068db4c5ad7ee75353ccdb0396940d223f3591ac"
+  integrity sha512-zN+EeYdJ/IyxCuY6wUXRf7HwBFGrOG5hFuIGMxplhwlF3GZrg7GtsaIG/GdHPJuAUCoECdh7s6um8xs6T9hJHQ==
 
 parse-node-version@^1.0.1:
   version "1.0.1"
