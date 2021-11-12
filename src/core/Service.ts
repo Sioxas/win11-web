@@ -1,14 +1,14 @@
+type Constructor<T> = { new (): T };
+
 export default abstract class Service {
-  static #instance: Service;
-
-  static getInstance() {
-    return Service.#instance;
+  static #instance = new Map();
+  static getInstance<T>(this: Constructor<T>): T {
+    return Service.#instance.get(this);
   }
-
-  constructor() {
-    if (Service.#instance) {
-      return Service.#instance
+  protected constructor() {
+    if(Service.#instance.has(this.constructor)) {
+      return Service.#instance.get(this.constructor);
     }
-    Service.#instance = this;
+    Service.#instance.set(this.constructor, this);
   }
 }

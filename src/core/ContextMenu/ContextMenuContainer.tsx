@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useObservableState } from 'observable-hooks'
 
 import ContextMenu from './ContextMenu';
-import { useContextMenuService } from '../Services';
+import { useContextMenuService } from '../ServiceHooks';
 
 import { menus } from './test';
 

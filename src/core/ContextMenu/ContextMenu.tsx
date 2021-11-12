@@ -1,6 +1,6 @@
 import classNames from "classnames";
 
-import { useContextMenuService } from "../Services";
+import { useContextMenuService } from "../ServiceHooks";
 import { ContextMenuItem, ContextMenuType } from "./interface";
 import { getMenuHeight } from "./utils";
 
