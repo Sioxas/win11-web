@@ -1,9 +1,11 @@
 import React from "react";
+import { BehaviorSubject } from "rxjs";
 import { omitBy, isNil } from "lodash-es";
 
 import Application from "./Application";
 import { WindowController } from "./WindowController";
-import { WindowType, WindowLevel, WindowStatus, WindowControlButton } from './enums';
+import { WindowType, WindowLevel, WindowStatus, WindowControlButton, WindowPosition } from './enums';
+import Service from "./Service";
 
 interface WindowTitleBar{
   title: string;
@@ -15,6 +17,7 @@ export interface WindowOptions {
   level?: WindowLevel;
   width?: number;
   height?: number;
+  position?: number;
   resizeable?: boolean;
   titleBar?: false | WindowTitleBar;
   controlButton?: number;
@@ -25,6 +28,7 @@ const defaultOptions: WindowOptions = {
   level: WindowLevel.MIDDLE,
   width: 800,
   height: 600,
+  position: WindowPosition.CENTER,
   resizeable: true,
   controlButton: WindowControlButton.CLOSE | WindowControlButton.MINIMIZE | WindowControlButton.MAXIMIZE
 };
@@ -39,15 +43,18 @@ export interface WindowViewConfig<T extends Application = Application, P = any> 
   props?: P;
 }
 
-export default class WindowService {
+export default class WindowService extends Service {
 
   #windows = new Map<WindowController<Application>, WindowViewConfig>();
 
   #activeWindow: WindowController<Application> | null = null;
 
-  public windowContainer?: HTMLDivElement;
+  windowContainer?: HTMLDivElement;
 
-  constructor(private onViewsChange?: (windows: [WindowController<Application>, WindowViewConfig][]) => void) {
+  windowsChange$ = new BehaviorSubject<[WindowController<Application>, WindowViewConfig][]>([]);
+
+  constructor() {
+    super();
     document.body.addEventListener('pointermove', (event) => this.#onDragMove(event));
     document.body.addEventListener('pointerup', (event) => this.#onDragStop(event));
     document.body.addEventListener('pointerleave', (event) => this.#onDragStop(event));
@@ -75,16 +82,16 @@ export default class WindowService {
     windowController.zIndex = controllers.length;
     this.#windows.set(windowController, { component, props });
     if (this.#activeWindow) {
-      this.#activeWindow.active = false;
+      this.#activeWindow.active$.next(false);
     }
-    windowController.active = true;
+    windowController.active$.next(true);
     this.#activeWindow = windowController;
     this.#triggerViewsChange();
     return windowController;
   }
 
   closeWindow(windowController: WindowController<Application>) {
-    const controllers = this.#getControllersByLevel(windowController.level);
+    const controllers = this.#getControllersByLevel(windowController.level$.value);
     const startIndex = windowController.zIndex;
     // remove windowController from windows
     controllers.splice(startIndex, 1);
@@ -94,7 +101,7 @@ export default class WindowService {
       controllers[i].zIndex = i;
       // set last window active
       if (i === controllers.length - 1) {
-        controllers[i].active = true;
+        controllers[i].active$.next(true);
         this.#activeWindow = controllers[i];
       }
     }
@@ -102,11 +109,11 @@ export default class WindowService {
   }
 
   setWindowInactive(windowController: WindowController<Application>) {
-    const controllers = this.#getControllersByLevel(windowController.level);
+    const controllers = this.#getControllersByLevel(windowController.level$.value);
     if (this.#activeWindow === windowController) {
       // find last non-minimized window
       for (let i = controllers.length - 1; i >= 0; i--) {
-        if (controllers[i].status !== WindowStatus.MINIMIZED) {
+        if (controllers[i].windowStatus$.value !== WindowStatus.MINIMIZED) {
           this.setWindowActive(controllers[i]);
           break;
         }
@@ -115,24 +122,24 @@ export default class WindowService {
   }
 
   setWindowActive(windowController: WindowController<Application>) {
-    const controllers = this.#getControllersByLevel(windowController.level);
+    const controllers = this.#getControllersByLevel(windowController.level$.value);
     const startIndex = windowController.zIndex;
     // remove window from this.#windows
     controllers.splice(startIndex, 1);
     if (this.#activeWindow) {
-      this.#activeWindow.active = false;
+      this.#activeWindow.active$.next(false);
     }
     controllers.push(windowController);
     // update zIndex
     for (let i = startIndex; i < controllers.length; i++) {
       controllers[i].zIndex = i;
     }
-    windowController.active = true;
+    windowController.active$.next(true);
     this.#activeWindow = windowController;
   }
 
   #triggerViewsChange() {
-    this.onViewsChange?.(Array.from(this.#windows.entries()));
+    this.windowsChange$.next(Array.from(this.#windows.entries()));
   }
 
   #windowsStatus = new Map<WindowController<Application>, WindowStatus>();
@@ -143,7 +150,7 @@ export default class WindowService {
     // if there is any window not minimized except the active window
     let anyWindowNotMinimized = false;
     for (const [controller] of this.#windows) {
-      if (controller.status !== WindowStatus.MINIMIZED && controller !== this.#activeWindow) {
+      if (controller.windowStatus$.value !== WindowStatus.MINIMIZED && controller !== this.#activeWindow) {
         anyWindowNotMinimized = true;
         break;
       }
@@ -152,15 +159,15 @@ export default class WindowService {
     if (anyWindowNotMinimized) {
       // store windows status
       for (const [controller] of this.#windows) {
-        this.#windowsStatus.set(controller, controller.status);
+        this.#windowsStatus.set(controller, controller.windowStatus$.value);
         if (controller !== this.#activeWindow) {
-          controller.status = WindowStatus.MINIMIZED;
+          controller.windowStatus$.next(WindowStatus.MINIMIZED);
         }
       }
     } else {
       // restore windows status
       for (const [constroller, status] of this.#windowsStatus) {
-        constroller.status = status;
+        constroller.windowStatus$.next(status);
       }
       this.#windowsStatus.clear();
     }
@@ -168,7 +175,7 @@ export default class WindowService {
 
   #getControllersByLevel(level: WindowLevel) {
     return Array.from(this.#windows.keys())
-      .filter(controller => controller.level === level)
+      .filter(controller => controller.level$.value === level)
       .sort((a, b) => a.zIndex - b.zIndex);
   }
 

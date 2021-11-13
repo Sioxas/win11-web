@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useObservableState } from 'observable-hooks';
 import classNames from 'classnames';
 
 import { WindowController } from './WindowController';
@@ -13,15 +14,45 @@ interface WindowProps<T extends Application> {
 }
 
 function Window<T extends Application>({ children, controller }: WindowProps<T>) {
-  const [status, setStatus] = useState(WindowStatus.NORMAL);
-  const [active, setActive] = useState(true);
+
+  const status = useObservableState(controller.windowStatus$);
+
+  const active = useObservableState(controller.active$);
+
   const windowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    controller.init(windowRef.current!, setActive, setStatus);
+    controller.init(windowRef.current!);
   }, []);
 
   const { type, titleBar, resizeable, controlButton } = controller.options;
+
+  const resizerClass = classNames('window-resizer', {
+    'window-resizer-without-title-bar': Boolean(titleBar)
+  });
+
+  const resizers = [
+    controlButton & WindowControlButton.MINIMIZE && <div className={resizerClass}
+      onClick={() => controller.setStatus(WindowStatus.MINIMIZED)}
+    >
+      <span className="iconfont icon-minimize" />
+    </div>,
+    controlButton & WindowControlButton.MAXIMIZE && <>
+      {status === WindowStatus.MAXIMIZED && <div className={resizerClass}
+        onClick={() => controller.setStatus(WindowStatus.NORMAL)}
+      >
+        <span className="iconfont icon-restore" />
+      </div>}
+      {status === WindowStatus.NORMAL && <div className={resizerClass}
+        onClick={() => controller.setStatus(WindowStatus.MAXIMIZED)}
+      >
+        <span className="iconfont icon-maximize" />
+      </div>}
+    </>,
+    controlButton & WindowControlButton.CLOSE && <div className={resizerClass}>
+      <span className="iconfont icon-close" />
+    </div>,
+  ].filter(Boolean);
 
   return <div ref={windowRef}
     className={classNames('window', {
@@ -36,43 +67,20 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
     {
       type === WindowType.NORMAL && <>
         {
-          titleBar && <div className="window-title-bar">
-            <div className="window-title-bar-dragable"
-              onPointerDown={() => controller.onDragStart(0)}
-              onDoubleClick={() => controlButton & WindowControlButton.MAXIMIZE && controller.setStatus(status ^ WindowStatus.MAXIMIZED)}
-            >
-              <div className="window-title-bar-icon" draggable="false">
-                <img width='16' src={titleBar.icon} alt={titleBar.title} draggable="false" />
+          titleBar
+            ? <div className="window-title-bar">
+              <div className="window-title-bar-dragable"
+                onPointerDown={() => controller.onDragStart(0)}
+                onDoubleClick={() => controlButton & WindowControlButton.MAXIMIZE && controller.setStatus(status ^ WindowStatus.MAXIMIZED)}
+              >
+                <div className="window-title-bar-icon" draggable="false">
+                  <img width='16' src={titleBar.icon} alt={titleBar.title} draggable="false" />
+                </div>
+                <div className="window-title-bar-name" draggable="false">{titleBar.title}</div>
               </div>
-              <div className="window-title-bar-name" draggable="false">{titleBar.title}</div>
+              {resizers}
             </div>
-          </div>
-        }
-        {
-          controlButton & WindowControlButton.CLOSE && <div className="window-title-bar-resizer">
-            <span className="iconfont icon-close" />
-          </div>
-        }
-        {
-          controlButton & WindowControlButton.MAXIMIZE && <>
-            {status === WindowStatus.MAXIMIZED && <div className="window-title-bar-resizer"
-              onClick={() => controller.setStatus(WindowStatus.NORMAL)}
-            >
-              <span className="iconfont icon-restore" />
-            </div>}
-            {status === WindowStatus.NORMAL && <div className="window-title-bar-resizer"
-              onClick={() => controller.setStatus(WindowStatus.MAXIMIZED)}
-            >
-              <span className="iconfont icon-maximize" />
-            </div>}
-          </>
-        }
-        {
-          controlButton & WindowControlButton.MINIMIZE && <div className="window-title-bar-resizer"
-            onClick={() => controller.setStatus(WindowStatus.MINIMIZED)}
-          >
-            <span className="iconfont icon-minimize" />
-          </div>
+            : resizers.reverse()
         }
       </>
     }

@@ -7,7 +7,7 @@ export default class Desktop extends Application {
 
   #wallpaper?: WindowController<this>;
 
-  luanch(from: LuanchSource, args: string[]): void {
+  luanch(from: LuanchSource, args?: string[]): void {
     this.#wallpaper = this.createWindow({
       type: WindowType.FULLSCREEN,
       level:WindowLevel.BOTTOM,

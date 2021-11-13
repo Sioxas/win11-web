@@ -10,7 +10,7 @@ export default class Explorer extends Application{
   public static readonly appVersion: string = '0.0.1';
   public static readonly appDescription: string = '文件资源管理器';
 
-  luanch(from: LuanchSource, args: string[]): void {
+  luanch(from: LuanchSource, args?: string[]): void {
     this.createWindow({}, ExplorerView);
   }
 

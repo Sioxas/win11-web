@@ -1,11 +1,14 @@
 import Application, { LuanchSource } from "./Application";
-import { LUNCH_ON_STARTUP } from "./config";
+import Service from "./Service";
 import WindowService from "./WindowService";
+import { LUNCH_ON_STARTUP } from "../applications";
 
-export default class ApplicationService{
+export default class ApplicationService extends Service{
   #applications = new Set<Application>();
 
-  constructor(private windowService: WindowService){}
+  constructor(private windowService: WindowService){
+    super();
+  }
 
   onStartUp(){
     for(const App of LUNCH_ON_STARTUP){
