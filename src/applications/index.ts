@@ -5,13 +5,13 @@ import TaskBar from "./TaskBar";
 
 export const INSTALLED = [
   Desktop,
-  Explorer,
   TaskBar,
-  StartMenu
+  StartMenu,
+  Explorer,
 ];
 
 export const LUNCH_ON_STARTUP = [
   Desktop,
-  Explorer,
   TaskBar,
+  Explorer,
 ];
