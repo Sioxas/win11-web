@@ -2,7 +2,7 @@ import classNames from "classnames";
 
 import { useContextMenuService } from "../ServiceHooks";
 import { ContextMenuItem, ContextMenuType } from "./interface";
-import { getMenuHeight } from "./utils";
+import { getAjustedPosition } from "./utils";
 
 interface ContextMenuProps {
   x: number;
@@ -31,11 +31,7 @@ export default function ContextMenu(props: ContextMenuProps) {
       break;
   }
 
-  const
-    width = 120,
-    height = getMenuHeight(options),
-    top = Math.min(y, window.innerHeight - height) + 'px', // FIXME: window.innerHeight
-    left = (x > window.innerWidth - width ? x - width : x) + 4 + 'px'; // FIXME: window.innerWidth
+  const [left, top] = getAjustedPosition(x, y, options).map(v => v + "px");
 
   return (
     <ul className="context-menu" style={{ left, top }}>
@@ -52,14 +48,14 @@ export default function ContextMenu(props: ContextMenuProps) {
               }
             </li>;
           case ContextMenuType.QuickActions:
-            return <li key={`quick-actions-${index}`} className="context-menu-item-quick-actions"> 
+            return <li key={`quick-actions-${index}`} className="context-menu-item-quick-actions">
               {children?.map(child => <div className="context-menu-item-quick-action-icon">
-                {child.icon && <img src={child.icon} />}  
+                {child.icon && <img src={child.icon} />}
               </div>)}
             </li>;
           default:
             return (
-              <li key={`item-${index}`} 
+              <li key={`item-${index}`}
                 onPointerEnter={(event) => contextMenuService.onPointerEnter(event, [...props.path, option])}
                 className={classNames('context-menu-item', {
                   'context-menu-item-disabled': disabled,

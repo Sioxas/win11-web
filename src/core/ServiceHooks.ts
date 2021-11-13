@@ -11,4 +11,4 @@ function serviceHooksFactory<T extends Service>(service: T) {
 
 export const useCanvasService = serviceHooksFactory(new CanvasService());
 
-export const useContextMenuService = serviceHooksFactory(new ContextMenuService(CanvasService.getInstance()));
+export const useContextMenuService = serviceHooksFactory(new ContextMenuService());

@@ -3,7 +3,7 @@ import { BehaviorSubject } from "rxjs";
 import CanvasService from "../Canvas/CanvasService";
 import Service from "../Service";
 import { MenuPanel, ContextMenuItem } from "./interface";
-import { getMenuHeight } from "./utils";
+import { getAjustedPosition, getMenuHeight } from "./utils";
 
 export default class ContextMenuService extends Service {
   menuPanels$ = new BehaviorSubject<MenuPanel[]>([]);
@@ -22,7 +22,7 @@ export default class ContextMenuService extends Service {
     return this.path$.value;
   }
 
-  constructor(private canvas: CanvasService) {
+  constructor() {
     super();
   }
 
@@ -35,20 +35,19 @@ export default class ContextMenuService extends Service {
   #v2 = [0, 0];
 
   onPointerEnter(event: React.PointerEvent<HTMLLIElement>, path: ContextMenuItem[]) {
-    console.log(event.nativeEvent);
     if (!path.length) return;
     let panels = this.#menuPanels;
     if(panels.length > path.length) {
       const p = [event.clientX, event.clientY],
-        A = this.#v1, B = this.#v2,
-        C = [p[0] - this.#p0[0], p[1] - this.#p0[1]],
+        A = this.#v1, C = this.#v2,
+        B = [p[0] - this.#p0[0], p[1] - this.#p0[1]],
         // cross product of A and B
         AxB = A[0] * B[1] - A[1] * B[0],
         AxC = A[0] * C[1] - A[1] * C[0],
         CxB = C[0] * B[1] - C[1] * B[0],
         CxA = C[0] * A[1] - C[1] * A[0];
       if (AxB * AxC >= 0 && CxB * CxA >= 0){
-        // C is inside of A and B
+        // B is inside of A and C
         return;
       }
       panels = panels.slice(0, path.length);
@@ -59,8 +58,7 @@ export default class ContextMenuService extends Service {
       const element = (event.target as HTMLElement).closest('.context-menu-item');
       if (element) {
         const rect = (element as HTMLElement).getBoundingClientRect(),
-          x = rect.right - 8,
-          y = rect.top;
+          [x, y] = getAjustedPosition(rect.right - 8, rect.top, last.children!);
         panels = [...panels, { x, y, options: last.children! }];
         this.#path = path;
         const p1 = [event.clientX, rect.top], p2 = [x, y], 
