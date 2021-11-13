@@ -55,9 +55,15 @@ export default class WindowService extends Service {
 
   constructor() {
     super();
-    document.body.addEventListener('pointermove', (event) => this.#onDragMove(event));
-    document.body.addEventListener('pointerup', (event) => this.#onDragStop(event));
-    document.body.addEventListener('pointerleave', (event) => this.#onDragStop(event));
+    document.body.addEventListener('pointermove', (event) => {
+      this.#activeWindow?.onDragMove(event);
+    });
+    document.body.addEventListener('pointerup', (event) => {
+      this.#activeWindow?.onDragStop(event);
+    });
+    document.body.addEventListener('pointerleave', (event) => {
+      this.#activeWindow?.onDragStop(event);
+    });
   }
 
   init(windowContainer: HTMLDivElement) {
@@ -177,13 +183,5 @@ export default class WindowService extends Service {
     return Array.from(this.#windows.keys())
       .filter(controller => controller.level$.value === level)
       .sort((a, b) => a.zIndex - b.zIndex);
-  }
-
-  #onDragMove(event: MouseEvent) {
-    this.#activeWindow?.onDragMove(event);
-  }
-
-  #onDragStop(event: MouseEvent) {
-    this.#activeWindow?.onDragStop(event);
   }
 }
