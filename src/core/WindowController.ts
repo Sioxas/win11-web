@@ -47,8 +47,6 @@ export class WindowController<T extends Application> {
     this.#windowElement = windowElement;
     this.rect = new Rect(windowElement);
     if (this.options.type === WindowType.FULLSCREEN) {
-      this.rect.width = window.innerWidth;
-      this.rect.height = window.innerHeight;
       this.rect.left = 0;
       this.rect.top = 0;
     } else {

@@ -59,6 +59,7 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
       'window-minimize': status === WindowStatus.MINIMIZED,
       'window-maximize': status === WindowStatus.MAXIMIZED,
       'window-border': type === WindowType.NORMAL,
+      'window-fullscreen': type === WindowType.FULLSCREEN,
       'window-active': active,
       'window-inactive': !active,
     })}
