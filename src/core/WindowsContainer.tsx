@@ -14,7 +14,7 @@ export default function WindowsContainer() {
 
   const windowService = useWindowService();
 
-  const windows = useObservableState(windowService.windowsChange$);
+  const windows = useObservableState(windowService.windows$);
 
   useEffect(() => {
     windowService.init(windowContainerRef.current!);

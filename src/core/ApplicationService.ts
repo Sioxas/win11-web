@@ -1,20 +1,42 @@
-import Application, { LuanchSource } from "./Application";
+import Application from "./Application";
 import Service from "./Service";
 import WindowService from "./WindowService";
-import { LUNCH_ON_STARTUP } from "../applications";
+import { LAUNCH_ON_STARTUP } from "../applications";
+import { Constructor } from "@/utils/interface";
 
-export default class ApplicationService extends Service{
-  #applications = new Set<Application>();
+export default class ApplicationService extends Service {
 
-  constructor(private windowService: WindowService){
+  #apps = new Map<Constructor<Application>, Application>();
+
+  constructor(private windowService: WindowService) {
     super();
   }
 
-  onStartUp(){
-    for(const App of LUNCH_ON_STARTUP){
-      const app = new App(this.windowService);
-      this.#applications.add(app);
-      app.luanch(LuanchSource.StartUp);
+  onStartUp() {
+    for (const App of LAUNCH_ON_STARTUP) {
+      this.#launch(App);
     }
+  }
+
+  launch(App: Constructor<Application>, launchBy: Constructor<Application>) {
+    this.#launch(App, launchBy);
+  }
+
+  terminate(App: Constructor<Application>) {
+    const app = this.#apps.get(App);
+    if (app) {
+      app.onDestroy();
+      this.#apps.delete(App);
+    }
+  }
+
+  #launch(App: Constructor<Application>, launchBy?: Constructor<Application>) {
+    let app = this.#apps.get(App);
+    if (!app) {
+      app = new App(this.windowService);
+      this.#apps.set(App, app);
+    }
+    app.launch();
+    app.launchBy = launchBy;
   }
 }

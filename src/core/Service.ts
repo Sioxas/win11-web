@@ -1,4 +1,4 @@
-type Constructor<T> = { new (): T };
+import { Constructor } from "@/utils/interface";
 
 export default abstract class Service {
   static #instance = new Map();

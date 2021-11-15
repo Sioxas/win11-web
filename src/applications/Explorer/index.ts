@@ -1,5 +1,5 @@
 import { WindowController } from "@/core/WindowController";
-import Application, { LuanchSource } from "../../core/Application";
+import Application from "../../core/Application";
 import ExplorerView from "./ExplorerView";
 
 import icon from './explorer.png';
@@ -10,7 +10,7 @@ export default class Explorer extends Application{
   public static readonly appVersion: string = '0.0.1';
   public static readonly appDescription: string = '文件资源管理器';
 
-  luanch(from: LuanchSource, args?: string[]): void {
+  launch(args?: string[]): void {
     this.createWindow({}, ExplorerView);
   }
 

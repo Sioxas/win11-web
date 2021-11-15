@@ -10,8 +10,13 @@ export const INSTALLED = [
   Explorer,
 ];
 
-export const LUNCH_ON_STARTUP = [
+export const LAUNCH_ON_STARTUP = [
   Desktop,
   TaskBar,
+  Explorer,
+];
+
+export const PIN_TO_TASKBAR = [
+  StartMenu,
   Explorer,
 ];

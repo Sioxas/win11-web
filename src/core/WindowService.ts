@@ -47,11 +47,18 @@ export default class WindowService extends Service {
 
   #windows = new Map<WindowController<Application>, WindowViewConfig>();
 
-  #activeWindow: WindowController<Application> | null = null;
+  activeWindow$ = new BehaviorSubject<WindowController<Application> | null>(null);
+
+  get #activeWindow(){
+    return this.activeWindow$.value;
+  }
+  set #activeWindow(windowController: WindowController<Application> | null) {
+    this.activeWindow$.next(windowController);
+  }
 
   windowContainer?: HTMLDivElement;
 
-  windowsChange$ = new BehaviorSubject<[WindowController<Application>, WindowViewConfig][]>([]);
+  windows$ = new BehaviorSubject<[WindowController<Application>, WindowViewConfig][]>([]);
 
   constructor() {
     super();
@@ -128,6 +135,7 @@ export default class WindowService extends Service {
   }
 
   setWindowActive(windowController: WindowController<Application>) {
+    if(this.#activeWindow === windowController) return;
     const controllers = this.#getControllersByLevel(windowController.level$.value);
     const startIndex = windowController.zIndex;
     // remove window from this.#windows
@@ -145,7 +153,7 @@ export default class WindowService extends Service {
   }
 
   #triggerViewsChange() {
-    this.windowsChange$.next(Array.from(this.#windows.entries()));
+    this.windows$.next(Array.from(this.#windows.entries()));
   }
 
   #windowsStatus = new Map<WindowController<Application>, WindowStatus>();
