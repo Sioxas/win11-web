@@ -1,3 +1,4 @@
+import { TASKBAR_HEIGHT } from "@/core/config";
 import { WindowLevel, WindowPosition, WindowType } from "@/core/enums";
 import { WindowController } from "@/core/WindowController";
 import Application from "../../core/Application";
@@ -14,7 +15,7 @@ export default class TaskBar extends Application{
       level: WindowLevel.TOP,
       position: WindowPosition.LEFT | WindowPosition.BOTTOM,
       width: window.innerWidth,
-      height: 40,
+      height: TASKBAR_HEIGHT,
     }, TaskBarView);
     window.addEventListener('resize', () => {
       controller.rect!.width = window.innerWidth;

@@ -122,11 +122,11 @@ export default class WindowService extends Service {
   }
 
   setWindowInactive(windowController: WindowController<Application>) {
-    const controllers = this.#getControllersByLevel(windowController.level$.value);
+    const controllers = Array.from(this.#windows.keys()).sort((a, b) => a.zIndex - b.zIndex);
     if (this.#activeWindow === windowController) {
       // find last non-minimized window
       for (let i = controllers.length - 1; i >= 0; i--) {
-        if (controllers[i].windowStatus$.value !== WindowStatus.MINIMIZED) {
+        if (controllers[i].windowStatus$.value !== WindowStatus.MINIMIZED && controllers[i] !== windowController) {
           this.setWindowActive(controllers[i]);
           break;
         }
