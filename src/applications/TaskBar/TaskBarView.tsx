@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import Application from '@/core/Application';
 import { useApplicationService, useWindowService } from '@/core/ServiceHooks';
 import { Constructor } from '@/utils/interface';
-import { WindowStatus } from '@/core/enums';
 import TaskBar from '.';
 import { PIN_TO_TASKBAR } from '..';
 
@@ -18,7 +17,6 @@ import store from '@/assets/icons/store-light.png';
 import vscode from '@/assets/icons/vscode.png';
 
 import './TaskBar.less';
-
 
 const apps = [
   { name: 'start', icon: start, },
@@ -45,14 +43,8 @@ export default function TaskBarView() {
 
   function handleClick(App: typeof Application) {
     const controller = windows.map(([controller]) => controller).find(controller => controller.application.constructor === App);
-    if(controller) {
-      if(activeWindow === controller) {
-        controller.setStatus(WindowStatus.MINIMIZED);
-        windowService.setWindowInactive(controller);
-      }else{
-        controller.setStatus(WindowStatus.NORMAL);
-        windowService.setWindowActive(controller);
-      }
+    if (controller) {
+      activeWindow === controller ? controller.minimize() : controller.normalize();
     } else {
       appService.launch(App as unknown as Constructor<Application>, TaskBar);
     };
@@ -60,7 +52,7 @@ export default function TaskBarView() {
 
   return <div className="task-bar">
     {PIN_TO_TASKBAR.map((App) => (
-      <button key={App.appName} 
+      <button key={App.appName}
         onClick={() => handleClick(App)}
         onMouseDown={(e) => e.stopPropagation()}
         className={classNames('task-bar-app-btn', {

@@ -10,10 +10,10 @@ export enum WindowLevel {
   BOTTOM = 0,
 }
 
-export enum WindowStatus {
-  NORMAL,
-  MINIMIZED,
-  MAXIMIZED,
+export enum WindowResizeType {
+  NORMAL = 1,
+  MINIMIZED = 2,
+  MAXIMIZED = 4,
 }
 
 export enum WindowControlButton {

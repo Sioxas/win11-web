@@ -3,7 +3,7 @@ import { useObservableState } from 'observable-hooks';
 import classNames from 'classnames';
 
 import { WindowController } from './WindowController';
-import { WindowStatus, WindowResizer, WindowControlButton, WindowType } from './enums';
+import { WindowResizeType, WindowResizer, WindowControlButton, WindowType } from './enums';
 import Application from './Application';
 
 import './Window.less';
@@ -15,14 +15,24 @@ interface WindowProps<T extends Application> {
 
 function Window<T extends Application>({ children, controller }: WindowProps<T>) {
 
-  const status = useObservableState(controller.windowStatus$);
+  const resizeType = useObservableState(controller.windowResizeType$);
 
   const active = useObservableState(controller.active$);
 
   const windowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    controller.init(windowRef.current!);
+    const windowElement = windowRef.current;
+    if(windowElement) {
+      controller.init(windowElement);
+      windowElement.animate([
+        { transform: 'scale(0.8)', opacity: 0 },
+        { transform: 'scale(1)', opacity: 1 },
+      ], {
+        duration: 200,
+        fill: 'forwards',
+      });
+    }
   }, []);
 
   const { type, titleBar, resizeable, controlButton } = controller.options;
@@ -33,31 +43,33 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
 
   const resizers = [
     controlButton & WindowControlButton.MINIMIZE && <div className={resizerClass}
-      onClick={() => controller.setStatus(WindowStatus.MINIMIZED)}
+      onClick={() => controller.minimize()}
     >
       <span className="iconfont icon-minimize" />
     </div>,
     controlButton & WindowControlButton.MAXIMIZE && <>
-      {status === WindowStatus.MAXIMIZED && <div className={resizerClass}
-        onClick={() => controller.setStatus(WindowStatus.NORMAL)}
+      {resizeType === WindowResizeType.MAXIMIZED && <div className={resizerClass}
+        onClick={() => controller.normalize()}
       >
         <span className="iconfont icon-restore" />
       </div>}
-      {status === WindowStatus.NORMAL && <div className={resizerClass}
-        onClick={() => controller.setStatus(WindowStatus.MAXIMIZED)}
+      {resizeType === WindowResizeType.NORMAL && <div className={resizerClass}
+        onClick={() => controller.maximize()}
       >
         <span className="iconfont icon-maximize" />
       </div>}
     </>,
-    controlButton & WindowControlButton.CLOSE && <div className={resizerClass}>
+    controlButton & WindowControlButton.CLOSE && <div className={classNames(resizerClass, 'window-resizer-close')}
+      onClick={() => controller.close()}
+    >
       <span className="iconfont icon-close" />
     </div>,
   ].filter(Boolean);
 
   return <div ref={windowRef}
     className={classNames('window', {
-      'window-minimize': status === WindowStatus.MINIMIZED,
-      'window-maximize': status === WindowStatus.MAXIMIZED,
+      'window-minimize': resizeType === WindowResizeType.MINIMIZED,
+      'window-maximize': resizeType === WindowResizeType.MAXIMIZED,
       'window-border': type === WindowType.NORMAL,
       'window-fullscreen': type === WindowType.FULLSCREEN,
       'window-active': active,
@@ -72,7 +84,10 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
             ? <div className="window-title-bar">
               <div className="window-title-bar-dragable"
                 onPointerDown={() => controller.onDragStart(0)}
-                onDoubleClick={() => controlButton & WindowControlButton.MAXIMIZE && controller.setStatus(status ^ WindowStatus.MAXIMIZED)}
+                onDoubleClick={() => {
+                  if(controlButton & WindowControlButton.MAXIMIZE) 
+                    resizeType & WindowResizeType.MAXIMIZED ? controller.normalize() : controller.maximize();
+                }}
               >
                 <div className="window-title-bar-icon" draggable="false">
                   <img width='16' src={titleBar.icon} alt={titleBar.title} draggable="false" />

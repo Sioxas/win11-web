@@ -1,9 +1,8 @@
 import { BehaviorSubject } from 'rxjs';
 
-import MouseShakeDetector from '@/utils/MouseShakeDetector';
 import WindowService from './WindowService';
 import Rect from './WindowRect';
-import { WindowResizer, WindowLevel, WindowStatus, WindowType, WindowPosition } from './enums';
+import { WindowResizer, WindowLevel, WindowResizeType, WindowType, WindowPosition } from './enums';
 import { WindowOptions } from './WindowService';
 import Application from './Application';
 
@@ -15,13 +14,11 @@ export class WindowController<T extends Application> {
   rect?: Rect;
   #windowElement?: HTMLDivElement;
 
-  #mouseShakeDetector?: MouseShakeDetector;
-
-  level$ = new BehaviorSubject<WindowLevel>(WindowLevel.MIDDLE);
+  level$: BehaviorSubject<WindowLevel>;
 
   active$ = new BehaviorSubject<boolean>(true);
 
-  windowStatus$ = new BehaviorSubject<WindowStatus>(WindowStatus.NORMAL);
+  windowResizeType$: BehaviorSubject<WindowResizeType>;
 
   #zIndex = 0;
   set zIndex(zIndex: number) {
@@ -39,8 +36,8 @@ export class WindowController<T extends Application> {
     public options: Required<WindowOptions>,
     public application: T,
   ) {
-    this.#mouseShakeDetector = new MouseShakeDetector(() => windowService.onWindowShake());
-    this.level$.next(options.level);
+    this.level$ = new BehaviorSubject<WindowLevel>(options.level);
+    this.windowResizeType$ = new BehaviorSubject<WindowResizeType>(options.defaultResizeType);
   }
 
   init(windowElement: HTMLDivElement) {
@@ -82,8 +79,39 @@ export class WindowController<T extends Application> {
     this.windowService.setWindowActive(this);
   }
 
-  setStatus(status: WindowStatus) {
-    this.windowStatus$.next(status);
+  minimize() {
+    if(this.options.availableResizeType & WindowResizeType.MINIMIZED) {
+      this.windowResizeType$.next(WindowResizeType.MINIMIZED);
+      this.windowService.setWindowInactive(this);
+    }
+  }
+
+  maximize() {
+    if(this.options.availableResizeType & WindowResizeType.MAXIMIZED) {
+      this.windowResizeType$.next(WindowResizeType.MAXIMIZED);
+      this.windowService.setWindowActive(this);
+    }
+  }
+
+  normalize() {
+    if(this.options.availableResizeType & WindowResizeType.NORMAL) {
+      this.windowResizeType$.next(WindowResizeType.NORMAL);
+      this.windowService.setWindowActive(this);
+    }
+  }
+
+  async close() {
+    if(this.#windowElement){
+      await this.#windowElement.animate([
+        { transform: 'scale(1)', opacity: 1 },
+        { transform: 'scale(0.8)', opacity: 0 },
+      ], {
+        duration: 200,
+        easing: 'ease-in-out',
+        fill: 'forwards',
+      }).finished;
+      this.windowService.closeWindow(this);
+    }
   }
 
   onDragStart(resizer: number) {
@@ -94,12 +122,12 @@ export class WindowController<T extends Application> {
   onDragMove(event: MouseEvent) {
     if (!this.rect) return;
     if (!this.#drag) return;
-    this.#mouseShakeDetector?.move(event);
+    this.windowService.mouseShakeDetector.move(event);
     const Δx = event.movementX / devicePixelRatio;
     const Δy = event.movementY / devicePixelRatio;
     if (this.#resizer === WindowResizer.NONE) { // drag title bar
-      if (this.windowStatus$.value === WindowStatus.MAXIMIZED) {
-        this.windowStatus$.next(WindowStatus.NORMAL);
+      if (this.windowResizeType$.value === WindowResizeType.MAXIMIZED) {
+        this.windowResizeType$.next(WindowResizeType.NORMAL);
         this.rect.left = event.clientX - this.rect.width / 2;
         this.rect.top = 0;
       }
@@ -128,7 +156,7 @@ export class WindowController<T extends Application> {
     if (!this.#drag) return;
     if (this.#resizer === WindowResizer.NONE) {
       if (event.clientY <= 0) {
-        this.windowStatus$.next(WindowStatus.MAXIMIZED);
+        this.windowResizeType$.next(WindowResizeType.MAXIMIZED);
       }
       if (this.rect.top < 0) {
         this.rect.top = 0;

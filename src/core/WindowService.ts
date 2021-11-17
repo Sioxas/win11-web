@@ -3,9 +3,10 @@ import { BehaviorSubject } from "rxjs";
 import { omitBy, isNil } from "lodash-es";
 
 import RecentlyUsed from "@/utils/RecentlyUsed";
+import MouseShakeDetector from "@/utils/MouseShakeDetector";
 import Application from "./Application";
 import { WindowController } from "./WindowController";
-import { WindowType, WindowLevel, WindowStatus, WindowControlButton, WindowPosition } from './enums';
+import { WindowType, WindowLevel, WindowResizeType, WindowControlButton, WindowPosition } from './enums';
 import Service from "./Service";
 
 interface WindowTitleBar {
@@ -22,6 +23,8 @@ export interface WindowOptions {
   resizeable?: boolean;
   titleBar?: false | WindowTitleBar;
   controlButton?: number;
+  availableResizeType?: number;
+  defaultResizeType?: WindowResizeType;
 }
 
 const defaultOptions: WindowOptions = {
@@ -31,7 +34,9 @@ const defaultOptions: WindowOptions = {
   height: 600,
   position: WindowPosition.CENTER,
   resizeable: true,
-  controlButton: WindowControlButton.CLOSE | WindowControlButton.MINIMIZE | WindowControlButton.MAXIMIZE
+  controlButton: WindowControlButton.CLOSE | WindowControlButton.MINIMIZE | WindowControlButton.MAXIMIZE,
+  availableResizeType: WindowResizeType.NORMAL | WindowResizeType.MINIMIZED | WindowResizeType.MINIMIZED,
+  defaultResizeType: WindowResizeType.NORMAL,
 };
 
 export interface WindowViewProps<T extends Application> {
@@ -66,6 +71,8 @@ export default class WindowService extends Service {
 
   windows$ = new BehaviorSubject<[WindowController<Application>, WindowViewConfig][]>([]);
 
+  mouseShakeDetector = new MouseShakeDetector();
+
   constructor() {
     super();
     document.body.addEventListener('pointermove', (event) => {
@@ -76,6 +83,9 @@ export default class WindowService extends Service {
     });
     document.body.addEventListener('pointerleave', (event) => {
       this.#activeWindow?.onDragStop(event);
+    });
+    this.mouseShakeDetector.mouseShake$.subscribe(() => {
+      this.onWindowShake();
     });
   }
 
@@ -110,21 +120,9 @@ export default class WindowService extends Service {
   }
 
   closeWindow(windowController: WindowController<Application>) {
-    const controllers = this.#getControllersByLevel(windowController.level$.value);
-    const startIndex = windowController.zIndex;
-    // remove windowController from windows
-    controllers.splice(startIndex, 1);
     this.#windows.delete(windowController);
     this.#recentlyUsedWindows.remove(windowController);
-    // update zIndex
-    for (let i = startIndex; i < controllers.length; i++) {
-      controllers[i].zIndex = i;
-      // set last window active
-      if (i === controllers.length - 1) {
-        controllers[i].active$.next(true);
-        this.#activeWindow = controllers[i];
-      }
-    }
+    this.#activeWindow = this.#recentlyUsedWindows.lastUsed;
     this.#triggerViewsChange();
   }
 
@@ -132,7 +130,7 @@ export default class WindowService extends Service {
     const controllers = this.#recentlyUsedWindows.items;
     if (this.#activeWindow === windowController) {
       // find first non-minimized window
-      const controller = controllers.find(controller => controller.windowStatus$.value !== WindowStatus.MINIMIZED && controller !== windowController);
+      const controller = controllers.find(controller => controller.windowResizeType$.value !== WindowResizeType.MINIMIZED && controller !== windowController);
       if (controller) {
         this.setWindowActive(controller);
       }
@@ -161,7 +159,7 @@ export default class WindowService extends Service {
     this.windows$.next(Array.from(this.#windows.entries()));
   }
 
-  #windowsStatus = new Map<WindowController<Application>, WindowStatus>();
+  #windowsStatus = new Map<WindowController<Application>, WindowResizeType>();
 
   onWindowShake() {
     if (this.#windows.size < 1) return;
@@ -169,7 +167,7 @@ export default class WindowService extends Service {
     // if there is any window not minimized except the active window
     let anyWindowNotMinimized = false;
     for (const [controller] of this.#windows) {
-      if (controller.windowStatus$.value !== WindowStatus.MINIMIZED && controller !== this.#activeWindow) {
+      if (controller.windowResizeType$.value !== WindowResizeType.MINIMIZED && controller !== this.#activeWindow) {
         anyWindowNotMinimized = true;
         break;
       }
@@ -178,15 +176,15 @@ export default class WindowService extends Service {
     if (anyWindowNotMinimized) {
       // store windows status
       for (const [controller] of this.#windows) {
-        this.#windowsStatus.set(controller, controller.windowStatus$.value);
+        this.#windowsStatus.set(controller, controller.windowResizeType$.value);
         if (controller !== this.#activeWindow) {
-          controller.windowStatus$.next(WindowStatus.MINIMIZED);
+          controller.windowResizeType$.next(WindowResizeType.MINIMIZED);
         }
       }
     } else {
       // restore windows status
       for (const [constroller, status] of this.#windowsStatus) {
-        constroller.windowStatus$.next(status);
+        constroller.windowResizeType$.next(status);
       }
       this.#windowsStatus.clear();
     }

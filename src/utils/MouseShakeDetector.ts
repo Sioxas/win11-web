@@ -1,10 +1,14 @@
+import { Subject } from "rxjs";
+
 export default class MouseShakeDetector {
 
   #inflexionCount = 0;
 
   #p = [0, 0];
 
-  constructor(private onMouseShake?: () => void) {}
+  #mouseShakeSubject$ = new Subject<MouseEvent>();
+  
+  mouseShake$ = this.#mouseShakeSubject$.asObservable();
 
   move(event: MouseEvent) {
     const v = [event.movementX, event.movementY];
@@ -13,7 +17,7 @@ export default class MouseShakeDetector {
     if (dp < 0) {
       this.#inflexionCount++;
       if (this.#inflexionCount === 3) {
-        this.onMouseShake?.();
+        this.#mouseShakeSubject$.next(event);
       }
       setTimeout(() => {
         this.#inflexionCount--;

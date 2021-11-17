@@ -1,4 +1,4 @@
-import { WindowLevel, WindowType } from "@/core/enums";
+import { WindowLevel, WindowResizeType, WindowType } from "@/core/enums";
 import Application from "../../core/Application";
 import StartMenuView from "./StartMenuView";
 
@@ -12,7 +12,8 @@ export default class StartMenu extends Application {
   launch(args?: string[]): void {
     this.createWindow({
       type: WindowType.BORDER_LESS,
-      level: WindowLevel.TOP
+      level: WindowLevel.TOP,
+      availableResizeType: WindowResizeType.NORMAL,
     }, StartMenuView);
   }
 
