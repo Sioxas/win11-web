@@ -2,12 +2,13 @@ import React from "react";
 import { BehaviorSubject } from "rxjs";
 import { omitBy, isNil } from "lodash-es";
 
+import RecentlyUsed from "@/utils/RecentlyUsed";
 import Application from "./Application";
 import { WindowController } from "./WindowController";
 import { WindowType, WindowLevel, WindowStatus, WindowControlButton, WindowPosition } from './enums';
 import Service from "./Service";
 
-interface WindowTitleBar{
+interface WindowTitleBar {
   title: string;
   icon: string;
 }
@@ -47,13 +48,18 @@ export default class WindowService extends Service {
 
   #windows = new Map<WindowController<Application>, WindowViewConfig>();
 
+  #recentlyUsedWindows = new RecentlyUsed<WindowController<Application>>();
+
   activeWindow$ = new BehaviorSubject<WindowController<Application> | null>(null);
 
-  get #activeWindow(){
+  get #activeWindow() {
     return this.activeWindow$.value;
   }
   set #activeWindow(windowController: WindowController<Application> | null) {
-    this.activeWindow$.next(windowController);
+    if (windowController) {
+      this.activeWindow$.next(windowController);
+      this.#recentlyUsedWindows.touch(windowController);
+    }
   }
 
   windowContainer?: HTMLDivElement;
@@ -84,7 +90,7 @@ export default class WindowService extends Service {
     props?: P
   ) {
     const windowOptions = { ...defaultOptions, ...omitBy(options, isNil) } as Required<WindowOptions>;
-    if(options.titleBar === undefined){
+    if (options.titleBar === undefined) {
       windowOptions.titleBar = {
         title: (<typeof Application>application.constructor).appName,
         icon: (<typeof Application>application.constructor).appIcon
@@ -109,6 +115,7 @@ export default class WindowService extends Service {
     // remove windowController from windows
     controllers.splice(startIndex, 1);
     this.#windows.delete(windowController);
+    this.#recentlyUsedWindows.remove(windowController);
     // update zIndex
     for (let i = startIndex; i < controllers.length; i++) {
       controllers[i].zIndex = i;
@@ -122,20 +129,18 @@ export default class WindowService extends Service {
   }
 
   setWindowInactive(windowController: WindowController<Application>) {
-    const controllers = Array.from(this.#windows.keys()).sort((a, b) => a.zIndex - b.zIndex);
+    const controllers = this.#recentlyUsedWindows.items;
     if (this.#activeWindow === windowController) {
-      // find last non-minimized window
-      for (let i = controllers.length - 1; i >= 0; i--) {
-        if (controllers[i].windowStatus$.value !== WindowStatus.MINIMIZED && controllers[i] !== windowController) {
-          this.setWindowActive(controllers[i]);
-          break;
-        }
+      // find first non-minimized window
+      const controller = controllers.find(controller => controller.windowStatus$.value !== WindowStatus.MINIMIZED && controller !== windowController);
+      if (controller) {
+        this.setWindowActive(controller);
       }
     }
   }
 
   setWindowActive(windowController: WindowController<Application>) {
-    if(this.#activeWindow === windowController) return;
+    if (this.#activeWindow === windowController) return;
     const controllers = this.#getControllersByLevel(windowController.level$.value);
     const startIndex = windowController.zIndex;
     // remove window from this.#windows
