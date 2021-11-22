@@ -14,16 +14,43 @@ export class WindowController<T extends Application> {
   rect?: Rect;
   #windowElement?: HTMLDivElement;
 
-  level$: BehaviorSubject<WindowLevel>;
+  #level$: BehaviorSubject<WindowLevel>;
+  get level$() {
+    return this.#level$.asObservable();
+  }
+  get level() {
+    return this.#level$.value;
+  }
+  set level(level: WindowLevel) {
+    this.#level$.next(level);
+  }
 
-  active$ = new BehaviorSubject<boolean>(true);
+  #active$ = new BehaviorSubject<boolean>(true);
+  get active$(){
+    return this.#active$.asObservable();
+  }
+  get active() {
+    return this.#active$.value;
+  }
+  set active(value: boolean) {
+    this.#active$.next(value);
+  }
 
-  windowResizeType$: BehaviorSubject<WindowResizeType>;
+  #windowResizeType$: BehaviorSubject<WindowResizeType>;
+  get windowResizeType$() {
+    return this.#windowResizeType$.asObservable();
+  }
+  get windowResizeType() {
+    return this.#windowResizeType$.value;
+  }
+  set windowResizeType(type: WindowResizeType) {
+    this.#windowResizeType$.next(type);
+  }
 
   #zIndex = 0;
   set zIndex(zIndex: number) {
     if (this.#windowElement) {
-      this.#windowElement.style.zIndex = zIndex + this.level$.value + '';
+      this.#windowElement.style.zIndex = zIndex + this.level + '';
     }
     this.#zIndex = zIndex;
   }
@@ -36,8 +63,8 @@ export class WindowController<T extends Application> {
     public options: Required<WindowOptions>,
     public application: T,
   ) {
-    this.level$ = new BehaviorSubject<WindowLevel>(options.level);
-    this.windowResizeType$ = new BehaviorSubject<WindowResizeType>(options.defaultResizeType);
+    this.#level$ = new BehaviorSubject<WindowLevel>(options.level);
+    this.#windowResizeType$ = new BehaviorSubject<WindowResizeType>(options.defaultResizeType);
   }
 
   init(windowElement: HTMLDivElement) {
@@ -81,21 +108,27 @@ export class WindowController<T extends Application> {
 
   minimize() {
     if(this.options.availableResizeType & WindowResizeType.MINIMIZED) {
-      this.windowResizeType$.next(WindowResizeType.MINIMIZED);
+      this.windowResizeType = WindowResizeType.MINIMIZED;
       this.windowService.setWindowInactive(this);
     }
   }
 
   maximize() {
     if(this.options.availableResizeType & WindowResizeType.MAXIMIZED) {
-      this.windowResizeType$.next(WindowResizeType.MAXIMIZED);
+      this.windowResizeType = WindowResizeType.MAXIMIZED;
       this.windowService.setWindowActive(this);
     }
   }
 
   normalize() {
     if(this.options.availableResizeType & WindowResizeType.NORMAL) {
-      this.windowResizeType$.next(WindowResizeType.NORMAL);
+      if(this.windowResizeType === WindowResizeType.MAXIMIZED) {
+        // TODO: animate to max 
+      }
+      if(this.windowResizeType === WindowResizeType.MINIMIZED) {
+        // TODO: animate to min
+      }
+      this.windowResizeType = WindowResizeType.NORMAL;
       this.windowService.setWindowActive(this);
     }
   }
@@ -126,8 +159,8 @@ export class WindowController<T extends Application> {
     const Δx = event.movementX / devicePixelRatio;
     const Δy = event.movementY / devicePixelRatio;
     if (this.#resizer === WindowResizer.NONE) { // drag title bar
-      if (this.windowResizeType$.value === WindowResizeType.MAXIMIZED) {
-        this.windowResizeType$.next(WindowResizeType.NORMAL);
+      if (this.windowResizeType === WindowResizeType.MAXIMIZED) {
+        this.windowResizeType = WindowResizeType.NORMAL;
         this.rect.left = event.clientX - this.rect.width / 2;
         this.rect.top = 0;
       }
@@ -156,7 +189,7 @@ export class WindowController<T extends Application> {
     if (!this.#drag) return;
     if (this.#resizer === WindowResizer.NONE) {
       if (event.clientY <= 0) {
-        this.windowResizeType$.next(WindowResizeType.MAXIMIZED);
+        this.windowResizeType = WindowResizeType.MAXIMIZED;
       }
       if (this.rect.top < 0) {
         this.rect.top = 0;

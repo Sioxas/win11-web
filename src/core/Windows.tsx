@@ -3,10 +3,12 @@ import { useObservableState } from 'observable-hooks';
 
 import Window from './Window';
 import { useApplicationService, useWindowService } from './ServiceHooks';
+import { ContextMenuContainer } from './ContextMenu';
+import TaskBar from './TaskBar/TaskBar';
 
 import './WindowsContainer.less';
 
-export default function WindowsContainer() {
+export default function Windows() {
 
   const windowContainerRef = useRef<HTMLDivElement>(null);
 
@@ -22,12 +24,18 @@ export default function WindowsContainer() {
   }, []);
 
   return (
-    <div ref={windowContainerRef} className="windows-container">
-      {windows.map(([controller, config]) => (
-        <Window key={controller.windowId} controller={controller}>
-          <config.component {...config.props} />
-        </Window>
-      ))}
-    </div>
+    <>
+      <div className="windows">
+        <div ref={windowContainerRef} className="windows-container">
+          {windows.map(([controller, config]) => (
+            <Window key={controller.windowId} controller={controller}>
+              <config.component {...config.props} />
+            </Window>
+          ))}
+        </div>
+        <TaskBar />
+      </div>
+      <ContextMenuContainer />
+    </>
   );
 }

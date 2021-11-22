@@ -4,8 +4,7 @@ import classNames from 'classnames';
 import Application from '@/core/Application';
 import { useApplicationService, useWindowService } from '@/core/ServiceHooks';
 import { Constructor } from '@/utils/interface';
-import TaskBar from '.';
-import { PIN_TO_TASKBAR } from '..';
+import { PIN_TO_TASKBAR } from '../../applications';
 
 import start from '@/assets/icons/start.png';
 import search from '@/assets/icons/search-dark.png';
@@ -29,7 +28,7 @@ const apps = [
   { name: 'vscode', icon: vscode, },
 ];
 
-export default function TaskBarView() {
+export default function TaskBar() {
 
   const windowService = useWindowService();
 
@@ -46,11 +45,11 @@ export default function TaskBarView() {
     if (controller) {
       activeWindow === controller ? controller.minimize() : controller.normalize();
     } else {
-      appService.launch(App as unknown as Constructor<Application>, TaskBar);
+      appService.launch(App as unknown as Constructor<Application>);
     };
   }
 
-  return <div className="task-bar">
+  return <div className="task-bar" onMouseDown={() => windowService.setTaskBarActive()}>
     {PIN_TO_TASKBAR.map((App) => (
       <button key={App.appName}
         onClick={() => handleClick(App)}

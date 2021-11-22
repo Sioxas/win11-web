@@ -27,7 +27,7 @@ export interface WindowOptions {
   defaultResizeType?: WindowResizeType;
 }
 
-const defaultOptions: WindowOptions = {
+export const defaultOptions: WindowOptions = {
   type: WindowType.NORMAL,
   level: WindowLevel.MIDDLE,
   width: 800,
@@ -55,14 +55,16 @@ export default class WindowService extends Service {
 
   #recentlyUsedWindows = new RecentlyUsed<WindowController<Application>>();
 
-  activeWindow$ = new BehaviorSubject<WindowController<Application> | null>(null);
-
+  #activeWindow$ = new BehaviorSubject<WindowController<Application> | null>(null);
+  get activeWindow$() {
+    return this.#activeWindow$.asObservable();
+  }
   get #activeWindow() {
-    return this.activeWindow$.value;
+    return this.#activeWindow$.value;
   }
   set #activeWindow(windowController: WindowController<Application> | null) {
+    this.#activeWindow$.next(windowController);
     if (windowController) {
-      this.activeWindow$.next(windowController);
       this.#recentlyUsedWindows.touch(windowController);
     }
   }
@@ -111,9 +113,9 @@ export default class WindowService extends Service {
     windowController.zIndex = controllers.length;
     this.#windows.set(windowController, { component, props });
     if (this.#activeWindow) {
-      this.#activeWindow.active$.next(false);
+      this.#activeWindow.active = false;
     }
-    windowController.active$.next(true);
+    windowController.active = true;
     this.#activeWindow = windowController;
     this.#triggerViewsChange();
     return windowController;
@@ -130,28 +132,34 @@ export default class WindowService extends Service {
     const controllers = this.#recentlyUsedWindows.items;
     if (this.#activeWindow === windowController) {
       // find first non-minimized window
-      const controller = controllers.find(controller => controller.windowResizeType$.value !== WindowResizeType.MINIMIZED && controller !== windowController);
+      const controller = controllers.find(controller => controller.windowResizeType !== WindowResizeType.MINIMIZED && controller !== windowController);
       if (controller) {
         this.setWindowActive(controller);
       }
     }
   }
 
+  setTaskBarActive(){
+    if(this.#activeWindow === null) return;
+    this.#activeWindow.active = false;
+    this.#activeWindow = null;
+  }
+
   setWindowActive(windowController: WindowController<Application>) {
     if (this.#activeWindow === windowController) return;
-    const controllers = this.#getControllersByLevel(windowController.level$.value);
+    const controllers = this.#getControllersByLevel(windowController.level);
     const startIndex = windowController.zIndex;
     // remove window from this.#windows
     controllers.splice(startIndex, 1);
     if (this.#activeWindow) {
-      this.#activeWindow.active$.next(false);
+      this.#activeWindow.active = false;
     }
     controllers.push(windowController);
     // update zIndex
     for (let i = startIndex; i < controllers.length; i++) {
       controllers[i].zIndex = i;
     }
-    windowController.active$.next(true);
+    windowController.active = true;
     this.#activeWindow = windowController;
   }
 
@@ -167,7 +175,7 @@ export default class WindowService extends Service {
     // if there is any window not minimized except the active window
     let anyWindowNotMinimized = false;
     for (const [controller] of this.#windows) {
-      if (controller.windowResizeType$.value !== WindowResizeType.MINIMIZED && controller !== this.#activeWindow) {
+      if (controller.windowResizeType !== WindowResizeType.MINIMIZED && controller !== this.#activeWindow) {
         anyWindowNotMinimized = true;
         break;
       }
@@ -176,15 +184,15 @@ export default class WindowService extends Service {
     if (anyWindowNotMinimized) {
       // store windows status
       for (const [controller] of this.#windows) {
-        this.#windowsStatus.set(controller, controller.windowResizeType$.value);
+        this.#windowsStatus.set(controller, controller.windowResizeType);
         if (controller !== this.#activeWindow) {
-          controller.windowResizeType$.next(WindowResizeType.MINIMIZED);
+          controller.windowResizeType = WindowResizeType.MINIMIZED;
         }
       }
     } else {
       // restore windows status
       for (const [constroller, status] of this.#windowsStatus) {
-        constroller.windowResizeType$.next(status);
+        constroller.windowResizeType = status;
       }
       this.#windowsStatus.clear();
     }
@@ -192,7 +200,7 @@ export default class WindowService extends Service {
 
   #getControllersByLevel(level: WindowLevel) {
     return Array.from(this.#windows.keys())
-      .filter(controller => controller.level$.value === level)
+      .filter(controller => controller.level === level)
       .sort((a, b) => a.zIndex - b.zIndex);
   }
 }
