@@ -59,10 +59,10 @@ export default class WindowService extends Service {
   get activeWindow$() {
     return this.#activeWindow$.asObservable();
   }
-  get #activeWindow() {
+  get activeWindow() {
     return this.#activeWindow$.value;
   }
-  set #activeWindow(windowController: WindowController<Application> | null) {
+  set activeWindow(windowController: WindowController<Application> | null) {
     this.#activeWindow$.next(windowController);
     if (windowController) {
       this.#recentlyUsedWindows.touch(windowController);
@@ -71,20 +71,26 @@ export default class WindowService extends Service {
 
   windowContainer?: HTMLDivElement;
 
-  windows$ = new BehaviorSubject<[WindowController<Application>, WindowViewConfig][]>([]);
+  #windows$ = new BehaviorSubject<[WindowController<Application>, WindowViewConfig][]>([]);
+  get windows$() {
+    return this.#windows$.asObservable();
+  }
+  get windows(){
+    return Array.from(this.#windows.entries());
+  }
 
   mouseShakeDetector = new MouseShakeDetector();
 
   constructor() {
     super();
     document.body.addEventListener('pointermove', (event) => {
-      this.#activeWindow?.onDragMove(event);
+      this.activeWindow?.onDragMove(event);
     });
     document.body.addEventListener('pointerup', (event) => {
-      this.#activeWindow?.onDragStop(event);
+      this.activeWindow?.onDragStop(event);
     });
     document.body.addEventListener('pointerleave', (event) => {
-      this.#activeWindow?.onDragStop(event);
+      this.activeWindow?.onDragStop(event);
     });
     this.mouseShakeDetector.mouseShake$.subscribe(() => {
       this.onWindowShake();
@@ -112,27 +118,31 @@ export default class WindowService extends Service {
     const windowController = new WindowController(windowOptions, application);
     windowController.zIndex = controllers.length;
     this.#windows.set(windowController, { component, props });
-    if (this.#activeWindow) {
-      this.#activeWindow.active = false;
+    if (this.activeWindow) {
+      this.activeWindow.active = false;
     }
     windowController.active = true;
-    this.#activeWindow = windowController;
-    this.#triggerViewsChange();
+    this.activeWindow = windowController;
+    this.#windows$.next(this.windows);
     return windowController;
   }
 
   closeWindow(windowController: WindowController<Application>) {
     this.#windows.delete(windowController);
     this.#recentlyUsedWindows.remove(windowController);
-    this.#activeWindow = this.#recentlyUsedWindows.lastUsed;
-    this.#triggerViewsChange();
+    this.activeWindow = this.#recentlyUsedWindows.lastUsed;
+    this.#windows$.next(this.windows);
   }
 
   setWindowInactive(windowController: WindowController<Application>) {
     const controllers = this.#recentlyUsedWindows.items;
-    if (this.#activeWindow === windowController) {
+    if (this.activeWindow === windowController) {
       // find first non-minimized window
-      const controller = controllers.find(controller => controller.windowResizeType !== WindowResizeType.MINIMIZED && controller !== windowController);
+      const controller = controllers.find(controller => 
+        controller.windowResizeType !== WindowResizeType.MINIMIZED 
+        && 
+        controller !== windowController
+      );
       if (controller) {
         this.setWindowActive(controller);
       }
@@ -140,19 +150,19 @@ export default class WindowService extends Service {
   }
 
   setTaskBarActive() {
-    if (this.#activeWindow === null) return;
-    this.#activeWindow.active = false;
-    this.#activeWindow = null;
+    if (this.activeWindow === null) return;
+    this.activeWindow.active = false;
+    this.activeWindow = null;
   }
 
   setWindowActive(windowController: WindowController<Application>) {
-    if (this.#activeWindow === windowController) return;
+    if (this.activeWindow === windowController) return;
     const controllers = this.#getControllersByLevel(windowController.level);
     const startIndex = windowController.zIndex;
     // remove window from this.#windows
     controllers.splice(startIndex, 1);
-    if (this.#activeWindow) {
-      this.#activeWindow.active = false;
+    if (this.activeWindow) {
+      this.activeWindow.active = false;
     }
     controllers.push(windowController);
     // update zIndex
@@ -160,11 +170,7 @@ export default class WindowService extends Service {
       controllers[i].zIndex = i;
     }
     windowController.active = true;
-    this.#activeWindow = windowController;
-  }
-
-  #triggerViewsChange() {
-    this.windows$.next(Array.from(this.#windows.entries()));
+    this.activeWindow = windowController;
   }
 
   #windowsStatus = new Map<WindowController<Application>, WindowResizeType>();
@@ -175,7 +181,7 @@ export default class WindowService extends Service {
     // if there is any window not minimized except the active window
     let anyWindowNotMinimized = false;
     for (const [controller] of this.#windows) {
-      if (controller.windowResizeType !== WindowResizeType.MINIMIZED && controller !== this.#activeWindow) {
+      if (controller.windowResizeType !== WindowResizeType.MINIMIZED && controller !== this.activeWindow) {
         anyWindowNotMinimized = true;
         break;
       }
@@ -185,7 +191,7 @@ export default class WindowService extends Service {
       // store windows status
       for (const [controller] of this.#windows) {
         this.#windowsStatus.set(controller, controller.windowResizeType);
-        if (controller !== this.#activeWindow) {
+        if (controller !== this.activeWindow) {
           controller.windowResizeType = WindowResizeType.MINIMIZED;
         }
       }

@@ -1,10 +1,7 @@
 import { useObservableState } from 'observable-hooks';
 import classNames from 'classnames';
 
-import Application from '@/core/Application';
-import { useApplicationService, useWindowService } from '@/core/ServiceHooks';
-import { Constructor } from '@/utils/interface';
-import { PIN_TO_TASKBAR } from '../../applications';
+import { useTaskBarService, useWindowService } from '@/core/ServiceHooks';
 
 import start from '@/assets/icons/start.png';
 import search from '@/assets/icons/search-dark.png';
@@ -32,34 +29,22 @@ export default function TaskBar() {
 
   const windowService = useWindowService();
 
-  const appService = useApplicationService();
+  const taskBarService = useTaskBarService();
 
-  const windows = useObservableState(windowService.windows$);
-
-  const activeWindow = useObservableState(windowService.activeWindow$);
-
-  const runningApps = windows.map(([controller]) => controller.application.constructor);
-
-  function handleClick(App: typeof Application) {
-    const controller = windows.map(([controller]) => controller).find(controller => controller.application.constructor === App);
-    if (controller) {
-      activeWindow === controller ? controller.minimize() : controller.normalize();
-    } else {
-      appService.launch(App as unknown as Constructor<Application>);
-    };
-  }
+  const buttons = useObservableState(taskBarService.buttons$, []);
 
   return <div className="task-bar" onMouseDown={() => windowService.setTaskBarActive()}>
-    {PIN_TO_TASKBAR.map((App) => (
-      <button key={App.appName}
-        onClick={() => handleClick(App)}
+    {buttons.map((button) => (
+      <button key={button.App.appName}
+        ref={button.ref}
+        onClick={() => taskBarService.onClickButton(button.App)}
         onMouseDown={(e) => e.stopPropagation()}
         className={classNames('task-bar-app-btn', {
-          'task-bar-app-btn-active': activeWindow?.application.constructor === App,
-          'task-bar-app-btn-running': runningApps.includes(App),
+          'task-bar-app-btn-active': button.active,
+          'task-bar-app-btn-running': button.running,
         })}
       >
-        <img width="22" src={App.appIcon} alt={App.appName} />
+        <img width="22" src={button.App.appIcon} alt={button.App.appName} />
         <div className="task-bar-app-btn-indicator" />
       </button>
     ))}
