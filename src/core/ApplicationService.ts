@@ -39,7 +39,7 @@ export default class ApplicationService extends Service {
   launch(App: Constructor<Application>, launchBy?: Constructor<Application>) {
     let app = this.#apps.get(App);
     if (!app) {
-      app = new App(this.windowService, this);
+      app = new App();
       this.#apps.set(App, app);
       this.#triggerAppsChange();
     }

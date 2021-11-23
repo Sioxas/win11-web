@@ -58,8 +58,9 @@ export class WindowController<T extends Application> {
     return this.#zIndex;
   }
 
+  private windowService = WindowService.getInstance();
+
   constructor(
-    private windowService: WindowService,
     public options: Required<WindowOptions>,
     public application: T,
   ) {

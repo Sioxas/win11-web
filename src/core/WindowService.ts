@@ -109,7 +109,7 @@ export default class WindowService extends Service {
       }
     }
     const controllers = this.#getControllersByLevel(windowOptions.level);
-    const windowController = new WindowController(this, windowOptions, application);
+    const windowController = new WindowController(windowOptions, application);
     windowController.zIndex = controllers.length;
     this.#windows.set(windowController, { component, props });
     if (this.#activeWindow) {

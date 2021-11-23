@@ -13,7 +13,8 @@ export default abstract class Application {
 
   launchBy?: Constructor<Application>;
 
-  constructor(private windowService: WindowService, private appService: ApplicationService) { }
+  private windowService = WindowService.getInstance();
+  private appService = ApplicationService.getInstance();
 
   protected createWindow<P>(
     options: WindowOptions,
