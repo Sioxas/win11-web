@@ -5,6 +5,7 @@ import Rect from './WindowRect';
 import { WindowResizer, WindowLevel, WindowResizeType, WindowType, WindowPosition } from './enums';
 import { WindowOptions } from './WindowService';
 import Application from './Application';
+import TaskBarService from './TaskBar/TaskBarService';
 
 export class WindowController<T extends Application> {
   static windowId = 0;
@@ -60,6 +61,8 @@ export class WindowController<T extends Application> {
 
   private windowService = WindowService.getInstance();
 
+  private taskBarService = TaskBarService.getInstance();
+
   constructor(
     public options: Required<WindowOptions>,
     public application: T,
@@ -108,7 +111,21 @@ export class WindowController<T extends Application> {
   }
 
   minimize() {
+    if(!this.#windowElement) return;
     if (this.options.availableResizeType & WindowResizeType.MINIMIZED) {
+      // animate to min
+      const windowRect = this.#windowElement.getBoundingClientRect();
+      const buttonRect = this.taskBarService.getButtonRectByApp(this.application.constructor as typeof Application);
+      if(buttonRect) {
+        this.#windowElement.style.transformOrigin = `${buttonRect.left - windowRect.left}px ${buttonRect.top - windowRect.top}px`;
+      }
+      this.#windowElement.animate([{
+        transform: 'scale(0.1)',
+        opacity: 0,
+      }], {
+        duration: 200,
+        fill: 'forwards',
+      });
       this.windowResizeType = WindowResizeType.MINIMIZED;
       this.windowService.setWindowInactive(this);
     }
@@ -116,18 +133,27 @@ export class WindowController<T extends Application> {
 
   maximize() {
     if (this.options.availableResizeType & WindowResizeType.MAXIMIZED) {
+      // TODO: animate to max 
       this.windowResizeType = WindowResizeType.MAXIMIZED;
       this.windowService.setWindowActive(this);
     }
   }
 
-  normalize() {
+  async normalize() {
+    if(!this.#windowElement) return;
     if (this.options.availableResizeType & WindowResizeType.NORMAL) {
       if (this.windowResizeType === WindowResizeType.MAXIMIZED) {
-        // TODO: animate to max 
+        // TODO: animate to normalize 
       }
       if (this.windowResizeType === WindowResizeType.MINIMIZED) {
-        // TODO: animate to min
+        await this.#windowElement.animate([{
+          transform: 'scale(1)',
+          opacity: 1,
+        }], {
+          duration: 200,
+          fill: 'forwards',
+        }).finished;
+        this.#windowElement.style.transformOrigin = 'center center';
       }
       this.windowResizeType = WindowResizeType.NORMAL;
       this.windowService.setWindowActive(this);
