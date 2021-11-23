@@ -47,7 +47,7 @@ export default class ApplicationService extends Service {
     app.launchBy = launchBy;
   }
 
-  #triggerAppsChange(){
+  #triggerAppsChange() {
     this.#apps$.next(Array.from(this.#apps.entries()));
   }
 }

@@ -13,13 +13,13 @@ export default abstract class Application {
 
   launchBy?: Constructor<Application>;
 
-  constructor(private windowService: WindowService, private appService: ApplicationService) {}
+  constructor(private windowService: WindowService, private appService: ApplicationService) { }
 
   protected createWindow<P>(
     options: WindowOptions,
     component: React.ComponentType<P & WindowViewProps<typeof this>>,
     props?: P
-  ){
+  ) {
     const controller = this.windowService.createWindow(this, options, component, props);
     this.windows.add(controller);
     return controller;
@@ -28,7 +28,7 @@ export default abstract class Application {
   protected closeWindow(windowController: WindowController<typeof this>) {
     this.windowService.closeWindow(windowController);
     this.windows.delete(windowController);
-    if(this.windows.size === 0) {
+    if (this.windows.size === 0) {
       this.appService.terminate(<Constructor<Application>>this.constructor);
       this.onDestroy();
     }
@@ -36,10 +36,10 @@ export default abstract class Application {
 
   abstract launch(args?: string[]): void;
 
-  onClose(controller: WindowController<typeof this>){
+  onClose(controller: WindowController<typeof this>) {
     this.closeWindow(controller);
   }
 
-  onDestroy() {}
+  onDestroy() { }
 
 }

@@ -31,5 +31,5 @@ export default class Rect {
   get height() {
     return this.#h;
   }
-  constructor(private element: HTMLElement) {}
+  constructor(private element: HTMLElement) { }
 }

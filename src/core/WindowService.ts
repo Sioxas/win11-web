@@ -139,8 +139,8 @@ export default class WindowService extends Service {
     }
   }
 
-  setTaskBarActive(){
-    if(this.#activeWindow === null) return;
+  setTaskBarActive() {
+    if (this.#activeWindow === null) return;
     this.#activeWindow.active = false;
     this.#activeWindow = null;
   }

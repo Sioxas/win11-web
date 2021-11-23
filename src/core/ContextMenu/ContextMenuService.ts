@@ -36,7 +36,7 @@ export default class ContextMenuService extends Service {
   onPointerEnter(event: React.PointerEvent<HTMLLIElement>, path: ContextMenuItem[]) {
     if (!path.length) return;
     let panels = this.#menuPanels;
-    if(panels.length > path.length) {
+    if (panels.length > path.length) {
       // judge whether the mouse point p is between A and C.
       // more detail: https://stackoverflow.com/questions/13640931/how-to-determine-if-a-vector-is-between-two-other-vectors
       const p = [event.clientX, event.clientY],
@@ -47,7 +47,7 @@ export default class ContextMenuService extends Service {
         AxC = A[0] * C[1] - A[1] * C[0],
         CxB = C[0] * B[1] - C[1] * B[0],
         CxA = C[0] * A[1] - C[1] * A[0];
-      if (AxB * AxC >= 0 && CxB * CxA >= 0){
+      if (AxB * AxC >= 0 && CxB * CxA >= 0) {
         // B is inside of A and C
         return;
       }
@@ -64,7 +64,7 @@ export default class ContextMenuService extends Service {
         this.#path = path;
         // compute the intercection point of p1p2 and p3p4
         // more detail: https://www.cuemath.com/geometry/intersection-of-two-lines/
-        const p1 = [event.clientX, rect.top], p2 = [x, y], 
+        const p1 = [event.clientX, rect.top], p2 = [x, y],
           p3 = [event.clientX, rect.bottom], p4 = [x, y + getMenuHeight(last.children!)],
           a1 = p2[1] - p1[1], b1 = p1[0] - p2[0], c1 = p2[0] * p1[1] - p1[0] * p2[1],
           a2 = p4[1] - p3[1], b2 = p3[0] - p4[0], c2 = p4[0] * p3[1] - p3[0] * p4[1],
@@ -75,7 +75,7 @@ export default class ContextMenuService extends Service {
         this.#v2 = [p4[0] - x0, p4[1] - y0];
       }
     }
-    if(panels !== this.#menuPanels)
+    if (panels !== this.#menuPanels)
       this.#menuPanels = panels;
   }
 

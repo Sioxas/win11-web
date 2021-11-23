@@ -5,7 +5,7 @@ import './style.less';
 export default class CanvasService extends Service {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
-  constructor(){
+  constructor() {
     super();
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d')!;

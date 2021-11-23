@@ -6,7 +6,7 @@ export default abstract class Service {
     return Service.#instance.get(this);
   }
   protected constructor() {
-    if(Service.#instance.has(this.constructor)) {
+    if (Service.#instance.has(this.constructor)) {
       return Service.#instance.get(this.constructor);
     }
     Service.#instance.set(this.constructor, this);

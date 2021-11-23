@@ -26,7 +26,7 @@ export class WindowController<T extends Application> {
   }
 
   #active$ = new BehaviorSubject<boolean>(true);
-  get active$(){
+  get active$() {
     return this.#active$.asObservable();
   }
   get active() {
@@ -107,25 +107,25 @@ export class WindowController<T extends Application> {
   }
 
   minimize() {
-    if(this.options.availableResizeType & WindowResizeType.MINIMIZED) {
+    if (this.options.availableResizeType & WindowResizeType.MINIMIZED) {
       this.windowResizeType = WindowResizeType.MINIMIZED;
       this.windowService.setWindowInactive(this);
     }
   }
 
   maximize() {
-    if(this.options.availableResizeType & WindowResizeType.MAXIMIZED) {
+    if (this.options.availableResizeType & WindowResizeType.MAXIMIZED) {
       this.windowResizeType = WindowResizeType.MAXIMIZED;
       this.windowService.setWindowActive(this);
     }
   }
 
   normalize() {
-    if(this.options.availableResizeType & WindowResizeType.NORMAL) {
-      if(this.windowResizeType === WindowResizeType.MAXIMIZED) {
+    if (this.options.availableResizeType & WindowResizeType.NORMAL) {
+      if (this.windowResizeType === WindowResizeType.MAXIMIZED) {
         // TODO: animate to max 
       }
-      if(this.windowResizeType === WindowResizeType.MINIMIZED) {
+      if (this.windowResizeType === WindowResizeType.MINIMIZED) {
         // TODO: animate to min
       }
       this.windowResizeType = WindowResizeType.NORMAL;
@@ -134,7 +134,7 @@ export class WindowController<T extends Application> {
   }
 
   async close() {
-    if(this.#windowElement){
+    if (this.#windowElement) {
       await this.#windowElement.animate([
         { transform: 'scale(1)', opacity: 1 },
         { transform: 'scale(0.8)', opacity: 0 },
