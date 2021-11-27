@@ -76,7 +76,7 @@ export default class TaskBarService extends Service {
       .map(([controller]) => controller)
       .find(controller => controller.application.constructor === App);
     if (controller) {
-      this.windowService.activeWindow === controller ? controller.minimize() : controller.normalize();
+      this.windowService.activeWindow === controller ? controller.minimize() : controller.restoreWindow();
     } else {
       this.appService.launch(App as unknown as Constructor<Application>);
     };

@@ -110,6 +110,10 @@ export class WindowController<T extends Application> {
     this.windowService.setWindowActive(this);
   }
 
+  #resizeTypeBeforeMinimized = WindowResizeType.NORMAL;
+
+  #minimizeAnimation?: Animation;
+
   minimize() {
     if (!this.#windowElement) return;
     if (this.options.availableResizeType & WindowResizeType.MINIMIZED) {
@@ -119,13 +123,14 @@ export class WindowController<T extends Application> {
       if (buttonRect) {
         this.#windowElement.style.transformOrigin = `${buttonRect.left - windowRect.left}px ${buttonRect.top - windowRect.top}px`;
       }
-      this.#windowElement.animate([{
+      this.#minimizeAnimation = this.#windowElement.animate([{
         transform: 'scale(0.1)',
         opacity: 0,
       }], {
         duration: 200,
         fill: 'forwards',
       });
+      this.#resizeTypeBeforeMinimized = this.windowResizeType;
       this.windowResizeType = WindowResizeType.MINIMIZED;
       this.windowService.setWindowInactive(this);
     }
@@ -156,18 +161,20 @@ export class WindowController<T extends Application> {
     if (this.options.availableResizeType & WindowResizeType.NORMAL) {
       if (this.windowResizeType === WindowResizeType.MAXIMIZED) {
         this.#maximizeAnimation?.reverse();
-      }
-      if (this.windowResizeType === WindowResizeType.MINIMIZED) {
-        await this.#windowElement.animate([{
-          transform: 'scale(1)',
-          opacity: 1,
-        }], {
-          duration: 200,
-          fill: 'forwards',
-        }).finished;
-        this.#windowElement.style.transformOrigin = 'center center';
+        await this.#maximizeAnimation?.finished;
       }
       this.windowResizeType = WindowResizeType.NORMAL;
+      this.windowService.setWindowActive(this);
+    }
+  }
+
+  async restoreWindow() {
+    if (!this.#windowElement) return;
+    if (this.windowResizeType === WindowResizeType.MINIMIZED) {
+      this.windowResizeType = this.#resizeTypeBeforeMinimized;
+      this.#minimizeAnimation?.reverse();
+      await this.#minimizeAnimation?.finished;
+      this.#windowElement.style.transformOrigin = 'center center';
       this.windowService.setWindowActive(this);
     }
   }
