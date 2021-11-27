@@ -14,7 +14,7 @@ export default class Explorer extends Application{
     this.createWindow({}, ExplorerView);
   }
 
-  onClose(controller: WindowController<this>): void {
+  onCloseWindow(controller: WindowController<this>): void {
     this.closeWindow(controller);
   }
   

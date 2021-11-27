@@ -34,11 +34,12 @@ export default class TaskBarService extends Service {
       map(([activeWindow, apps]) => {
         const runnigApps = apps.map(([App]) => App) as unknown as (typeof Application)[];
         const buttons: TaskBarButton[] = [];
+        const activeApp = activeWindow?.application.constructor;
         for (const App of PIN_TO_TASKBAR) {
           const index = runnigApps.findIndex(app => app === App);
           buttons.push({
             App,
-            active: activeWindow?.constructor === App,
+            active: activeApp === App,
             running: index !== -1,
             ref: createRef()
           });
@@ -49,7 +50,7 @@ export default class TaskBarService extends Service {
         for (const App of runnigApps) {
           buttons.push({
             App,
-            active: activeWindow?.constructor === App,
+            active: activeApp === App,
             running: true,
             ref: createRef()
           });

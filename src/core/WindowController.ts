@@ -160,7 +160,11 @@ export class WindowController<T extends Application> {
     }
   }
 
-  async close() {
+  close() {
+    this.application.onCloseWindow(this);
+  }
+
+  async _close() {
     if (this.#windowElement) {
       await this.#windowElement.animate([
         { transform: 'scale(1)', opacity: 1 },
@@ -170,7 +174,6 @@ export class WindowController<T extends Application> {
         easing: 'ease-in-out',
         fill: 'forwards',
       }).finished;
-      this.windowService.closeWindow(this);
     }
   }
 

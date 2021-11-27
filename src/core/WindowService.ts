@@ -127,7 +127,8 @@ export default class WindowService extends Service {
     return windowController;
   }
 
-  closeWindow(windowController: WindowController<Application>) {
+  async closeWindow(windowController: WindowController<Application>) {
+    await windowController._close();
     this.#windows.delete(windowController);
     this.#recentlyUsedWindows.remove(windowController);
     this.activeWindow = this.#recentlyUsedWindows.lastUsed;
@@ -145,11 +146,19 @@ export default class WindowService extends Service {
       );
       if (controller) {
         this.setWindowActive(controller);
+      } else {
+        this.setDesktopActive();
       }
     }
   }
 
   setTaskBarActive() {
+    if (this.activeWindow === null) return;
+    this.activeWindow.active = false;
+    this.activeWindow = null;
+  }
+
+  setDesktopActive() {
     if (this.activeWindow === null) return;
     this.activeWindow.active = false;
     this.activeWindow = null;

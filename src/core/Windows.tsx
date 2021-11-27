@@ -6,7 +6,7 @@ import { useApplicationService, useWindowService } from './ServiceHooks';
 import { ContextMenuContainer } from './ContextMenu';
 import TaskBar from './TaskBar/TaskBar';
 
-import './WindowsContainer.less';
+import './Windows.less';
 
 export default function Windows() {
 
@@ -26,8 +26,8 @@ export default function Windows() {
   return (
     <>
       <div className="windows">
-        <div ref={windowContainerRef} className="windows-container">
-          {windows.map(([controller, config]) => (
+        <div ref={windowContainerRef} className="windows-container" onPointerDown={()=>windowService.setDesktopActive()}>
+          {windows?.map(([controller, config]) => (
             <Window key={controller.windowId} controller={controller}>
               <config.component {...config.props} />
             </Window>

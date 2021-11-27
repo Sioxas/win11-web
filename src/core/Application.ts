@@ -26,8 +26,8 @@ export default abstract class Application {
     return controller;
   }
 
-  protected closeWindow(windowController: WindowController<typeof this>) {
-    this.windowService.closeWindow(windowController);
+  protected async closeWindow(windowController: WindowController<typeof this>) {
+    await this.windowService.closeWindow(windowController);
     this.windows.delete(windowController);
     if (this.windows.size === 0) {
       this.appService.terminate(<Constructor<Application>>this.constructor);
@@ -37,7 +37,7 @@ export default abstract class Application {
 
   abstract launch(args?: string[]): void;
 
-  onClose(controller: WindowController<typeof this>) {
+  onCloseWindow(controller: WindowController<typeof this>) {
     this.closeWindow(controller);
   }
 

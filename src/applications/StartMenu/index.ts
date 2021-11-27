@@ -17,7 +17,7 @@ export default class StartMenu extends Application {
     }, StartMenuView);
   }
 
-  onClose(): void {
+  onCloseWindow(): void {
     
   }
 }
