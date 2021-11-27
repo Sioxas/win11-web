@@ -111,12 +111,12 @@ export class WindowController<T extends Application> {
   }
 
   minimize() {
-    if(!this.#windowElement) return;
+    if (!this.#windowElement) return;
     if (this.options.availableResizeType & WindowResizeType.MINIMIZED) {
       // animate to min
       const windowRect = this.#windowElement.getBoundingClientRect();
       const buttonRect = this.taskBarService.getButtonRectByApp(this.application.constructor as typeof Application);
-      if(buttonRect) {
+      if (buttonRect) {
         this.#windowElement.style.transformOrigin = `${buttonRect.left - windowRect.left}px ${buttonRect.top - windowRect.top}px`;
       }
       this.#windowElement.animate([{
@@ -131,19 +131,31 @@ export class WindowController<T extends Application> {
     }
   }
 
-  maximize() {
+  #maximizeAnimation?: Animation;
+
+  async maximize() {
+    if (!this.#windowElement) return;
     if (this.options.availableResizeType & WindowResizeType.MAXIMIZED) {
-      // TODO: animate to max 
+      this.#maximizeAnimation = this.#windowElement.animate([{
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+      }], {
+        duration: 200,
+        fill: 'forwards',
+      });
+      await this.#maximizeAnimation.finished;
       this.windowResizeType = WindowResizeType.MAXIMIZED;
       this.windowService.setWindowActive(this);
     }
   }
 
   async normalize() {
-    if(!this.#windowElement) return;
+    if (!this.#windowElement) return;
     if (this.options.availableResizeType & WindowResizeType.NORMAL) {
       if (this.windowResizeType === WindowResizeType.MAXIMIZED) {
-        // TODO: animate to normalize 
+        this.#maximizeAnimation?.reverse();
       }
       if (this.windowResizeType === WindowResizeType.MINIMIZED) {
         await this.#windowElement.animate([{
@@ -190,6 +202,7 @@ export class WindowController<T extends Application> {
     const Δy = event.movementY / devicePixelRatio;
     if (this.#resizer === WindowResizer.NONE) { // drag title bar
       if (this.windowResizeType === WindowResizeType.MAXIMIZED) {
+        this.#maximizeAnimation?.cancel();
         this.windowResizeType = WindowResizeType.NORMAL;
         this.rect.left = event.clientX - this.rect.width / 2;
         this.rect.top = 0;
@@ -219,7 +232,7 @@ export class WindowController<T extends Application> {
     if (!this.#drag) return;
     if (this.#resizer === WindowResizer.NONE) {
       if (event.clientY <= 0) {
-        this.windowResizeType = WindowResizeType.MAXIMIZED;
+        this.maximize();
       }
       if (this.rect.top < 0) {
         this.rect.top = 0;

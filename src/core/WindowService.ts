@@ -35,7 +35,7 @@ export const defaultOptions: WindowOptions = {
   position: WindowPosition.CENTER,
   resizeable: true,
   controlButton: WindowControlButton.CLOSE | WindowControlButton.MINIMIZE | WindowControlButton.MAXIMIZE,
-  availableResizeType: WindowResizeType.NORMAL | WindowResizeType.MINIMIZED | WindowResizeType.MINIMIZED,
+  availableResizeType: WindowResizeType.NORMAL | WindowResizeType.MINIMIZED | WindowResizeType.MAXIMIZED,
   defaultResizeType: WindowResizeType.NORMAL,
 };
 
@@ -75,7 +75,7 @@ export default class WindowService extends Service {
   get windows$() {
     return this.#windows$.asObservable();
   }
-  get windows(){
+  get windows() {
     return Array.from(this.#windows.entries());
   }
 
@@ -139,9 +139,9 @@ export default class WindowService extends Service {
     const controllers = this.#recentlyUsedWindows.items;
     if (this.activeWindow === windowController) {
       // find first non-minimized window
-      const controller = controllers.find(controller => 
-        controller.windowResizeType !== WindowResizeType.MINIMIZED 
-        && 
+      const controller = controllers.find(controller =>
+        controller.windowResizeType !== WindowResizeType.MINIMIZED
+        &&
         controller !== windowController
       );
       if (controller) {

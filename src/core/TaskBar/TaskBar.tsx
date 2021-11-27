@@ -33,12 +33,12 @@ export default function TaskBar() {
 
   const buttons = useObservableState(taskBarService.buttons$, []);
 
-  return <div className="task-bar" onMouseDown={() => windowService.setTaskBarActive()}>
+  return <div className="task-bar" onPointerDown={() => windowService.setTaskBarActive()}>
     {buttons.map((button) => (
       <button key={button.App.appName}
         ref={button.ref}
         onClick={() => taskBarService.onClickButton(button.App)}
-        onMouseDown={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
         className={classNames('task-bar-app-btn', {
           'task-bar-app-btn-active': button.active,
           'task-bar-app-btn-running': button.running,

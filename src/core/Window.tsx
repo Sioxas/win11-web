@@ -75,7 +75,10 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
       'window-active': active,
       'window-inactive': !active,
     })}
-    onMouseDown={() => controller.setWindowActive()}
+    onPointerDown={(e) => { 
+      controller.setWindowActive(); 
+      e.stopPropagation();
+    }}
   >
     {
       type === WindowType.NORMAL && <>
