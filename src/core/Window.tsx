@@ -25,13 +25,6 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
     const windowElement = windowRef.current;
     if (windowElement) {
       controller.init(windowElement);
-      windowElement.animate([
-        { transform: 'scale(0.8)', opacity: 0 },
-        { transform: 'scale(1)', opacity: 1 },
-      ], {
-        duration: 200,
-        fill: 'forwards',
-      });
     }
   }, []);
 

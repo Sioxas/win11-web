@@ -89,21 +89,25 @@ export class WindowController<T extends Application> {
       if (this.options.position === WindowPosition.CENTER) {
         this.rect.left = Math.max(windowWidth / 2 - this.rect.width / 2, 0);
         this.rect.top = Math.max(windowHeight / 2 - this.rect.height / 2, 0);
-        return;
-      }
-      if (this.options.position & WindowPosition.LEFT) {
-        this.rect.left = 0;
-      }
-      if (this.options.position & WindowPosition.RIGHT) {
-        this.rect.left = windowWidth - this.rect.width;
-      }
-      if (this.options.position & WindowPosition.TOP) {
-        this.rect.top = 0;
-      }
-      if (this.options.position & WindowPosition.BOTTOM) {
-        this.rect.top = windowHeight - this.rect.height;
+      } else {
+        if (this.options.position & WindowPosition.LEFT) {
+          this.rect.left = 0;
+        }
+        if (this.options.position & WindowPosition.RIGHT) {
+          this.rect.left = windowWidth - this.rect.width;
+        }
+        if (this.options.position & WindowPosition.TOP) {
+          this.rect.top = 0;
+        }
+        if (this.options.position & WindowPosition.BOTTOM) {
+          this.rect.top = windowHeight - this.rect.height;
+        }
       }
     }
+    windowElement.animate(this.options.windowAnimateKeyFrames, {
+      duration: 200,
+      fill: 'forwards',
+    });
   }
 
   setWindowActive() {
@@ -175,8 +179,8 @@ export class WindowController<T extends Application> {
       this.#minimizeAnimation?.reverse();
       await this.#minimizeAnimation?.finished;
       this.#windowElement.style.transformOrigin = 'center center';
-      this.windowService.setWindowActive(this);
     }
+    this.windowService.setWindowActive(this);
   }
 
   close() {
@@ -185,14 +189,13 @@ export class WindowController<T extends Application> {
 
   async _close() {
     if (this.#windowElement) {
-      await this.#windowElement.animate([
-        { transform: 'scale(1)', opacity: 1 },
-        { transform: 'scale(0.8)', opacity: 0 },
-      ], {
-        duration: 200,
-        easing: 'ease-in-out',
-        fill: 'forwards',
-      }).finished;
+      await this.#windowElement.animate(
+        [...this.options.windowAnimateKeyFrames].reverse(), 
+        {
+          duration: 200,
+          fill: 'forwards',
+        }
+      ).finished;
     }
   }
 

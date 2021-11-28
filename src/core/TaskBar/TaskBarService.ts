@@ -1,5 +1,6 @@
 import { createRef, RefObject } from "react";
 import { BehaviorSubject, combineLatest, map } from "rxjs";
+import { uniq } from "lodash-es";
 
 import { PIN_TO_TASKBAR } from "@/applications";
 import ApplicationService from "../ApplicationService";
@@ -30,13 +31,13 @@ export default class TaskBarService extends Service {
     private appService: ApplicationService
   ) {
     super();
-    combineLatest([windowService.activeWindow$, appService.apps$]).pipe(
-      map(([activeWindow, apps]) => {
-        const runnigApps = apps.map(([App]) => App) as unknown as (typeof Application)[];
+    combineLatest([windowService.activeWindow$, windowService.windows$]).pipe(
+      map(([activeWindow, windows]) => {
+        const apps = uniq(windows.map(([controller]) => controller.application.constructor));
         const buttons: TaskBarButton[] = [];
         const activeApp = activeWindow?.application.constructor;
         for (const App of PIN_TO_TASKBAR) {
-          const index = runnigApps.findIndex(app => app === App);
+          const index = apps.findIndex(app => app === App);
           buttons.push({
             App,
             active: activeApp === App,
@@ -44,12 +45,12 @@ export default class TaskBarService extends Service {
             ref: createRef()
           });
           if (index !== -1) {
-            runnigApps.splice(index, 1);
+            apps.splice(index, 1);
           }
         }
-        for (const App of runnigApps) {
+        for (const App of apps) {
           buttons.push({
-            App,
+            App: App as typeof Application,
             active: activeApp === App,
             running: true,
             ref: createRef()

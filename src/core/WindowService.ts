@@ -25,6 +25,7 @@ export interface WindowOptions {
   controlButton?: number;
   availableResizeType?: number;
   defaultResizeType?: WindowResizeType;
+  windowAnimateKeyFrames?: Keyframe[];
 }
 
 export const defaultOptions: WindowOptions = {
@@ -37,6 +38,10 @@ export const defaultOptions: WindowOptions = {
   controlButton: WindowControlButton.CLOSE | WindowControlButton.MINIMIZE | WindowControlButton.MAXIMIZE,
   availableResizeType: WindowResizeType.NORMAL | WindowResizeType.MINIMIZED | WindowResizeType.MAXIMIZED,
   defaultResizeType: WindowResizeType.NORMAL,
+  windowAnimateKeyFrames: [
+    { transform: 'scale(0.8)', opacity: 0 },
+    { transform: 'scale(1)', opacity: 1 },
+  ]
 };
 
 export interface WindowViewProps<T extends Application> {
