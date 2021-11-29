@@ -16,19 +16,12 @@ export default function Widget<T extends Application>({ children, controller }: 
     const windowElement = widgetRef.current;
     if (windowElement) {
       controller.init(windowElement);
-      windowElement.animate([
-        { transform: 'scale(0.8)', opacity: 0 },
-        { transform: 'scale(1)', opacity: 1 },
-      ], {
-        duration: 200,
-        fill: 'forwards',
-      });
     }
   }, []);
 
   return <div ref={widgetRef}
     className="window window-border window-active"
-    onPointerDown={(e) => { 
+    onPointerDown={(e) => {
       controller.setWindowActive(); 
       e.stopPropagation();
     }}

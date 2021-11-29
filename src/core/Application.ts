@@ -30,10 +30,6 @@ export default abstract class Application {
     return controller;
   }
 
-  protected createWidget(){
-    // TODO:
-  }
-
   protected async closeWindow(windowController: WindowController<typeof this>) {
     await this.windowService.closeWindow(windowController);
     this.windows.delete(windowController);

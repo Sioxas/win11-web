@@ -2,6 +2,7 @@ export enum WindowType {
   NORMAL,
   BORDER_LESS,
   FULLSCREEN,
+  WIDGET,
 }
 
 export enum WindowLevel {

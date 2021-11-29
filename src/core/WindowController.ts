@@ -73,6 +73,7 @@ export class WindowController<T extends Application> {
 
   init(windowElement: HTMLDivElement) {
     this.#windowElement = windowElement;
+    this.zIndex = this.#zIndex;
     this.rect = new Rect(windowElement);
     if (this.options.type === WindowType.FULLSCREEN) {
       this.rect.left = 0;

@@ -10,14 +10,14 @@ export default class StartMenu extends Application {
   public static readonly appDescription: string = '开始菜单';
 
   launch(args?: string[]): void {
-    this.createWindow({
-      type: WindowType.BORDER_LESS,
+    const controller = this.createWindow({
+      type: WindowType.WIDGET,
       level: WindowLevel.TOP,
-      availableResizeType: WindowResizeType.NORMAL,
     }, StartMenuView);
-  }
-
-  onCloseWindow(): void {
-    
+    controller.active$.subscribe((active) => {
+      if(!active) {
+        controller.close();
+      }
+    });
   }
 }

@@ -3,11 +3,12 @@ import { BehaviorSubject, combineLatest, map } from "rxjs";
 import { uniq } from "lodash-es";
 
 import { PIN_TO_TASKBAR } from "@/applications";
+import { Constructor } from "@/utils/interface";
 import ApplicationService from "../ApplicationService";
 import WindowService from "../WindowService";
 import Service from "../Service";
 import Application from "../Application";
-import { Constructor } from "@/utils/interface";
+import { WindowType } from "../enums";
 
 export interface TaskBarButton {
   App: typeof Application;
@@ -33,9 +34,12 @@ export default class TaskBarService extends Service {
     super();
     combineLatest([windowService.activeWindow$, windowService.windows$]).pipe(
       map(([activeWindow, windows]) => {
-        const apps = uniq(windows.map(([controller]) => controller.application.constructor));
-        const buttons: TaskBarButton[] = [];
+        const apps = uniq(
+          windows.filter(([controller]) => controller.options.type !== WindowType.WIDGET)
+            .map(([controller]) => controller.application.constructor)
+        );
         const activeApp = activeWindow?.application.constructor;
+        const buttons: TaskBarButton[] = [];
         for (const App of PIN_TO_TASKBAR) {
           const index = apps.findIndex(app => app === App);
           buttons.push({
@@ -77,7 +81,15 @@ export default class TaskBarService extends Service {
       .map(([controller]) => controller)
       .find(controller => controller.application.constructor === App);
     if (controller) {
-      this.windowService.activeWindow === controller ? controller.minimize() : controller.restoreWindow();
+      if(this.windowService.activeWindow === controller) {
+        if(controller.options.type === WindowType.WIDGET) {
+          controller.close();
+        }else{
+          controller.minimize();
+        }
+      } else {
+        controller.restoreWindow();
+      } 
     } else {
       this.appService.launch(App as unknown as Constructor<Application>);
     };
