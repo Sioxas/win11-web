@@ -6,6 +6,8 @@ import { WindowResizer, WindowLevel, WindowResizeType, WindowType, WindowPositio
 import { WindowOptions } from './WindowService';
 import Application from './Application';
 import TaskBarService from './TaskBar/TaskBarService';
+import RelativePosition from '@/utils/RelativePosition';
+import Point from '@/utils/Point';
 
 export class WindowController<T extends Application> {
   static windowId = 0;
@@ -79,35 +81,43 @@ export class WindowController<T extends Application> {
       this.rect.left = 0;
       this.rect.top = 0;
     } else {
-      let windowWidth = this.windowService.windowContainer!.clientWidth,
-        windowHeight = this.windowService.windowContainer!.clientHeight;
-      if (this.options.level !== WindowLevel.MIDDLE) {
-        windowWidth = window.innerWidth;
-        windowHeight = window.innerHeight;
-      }
+      let containerWidth = this.windowService.windowContainer!.clientWidth,
+        containerHeight = this.windowService.windowContainer!.clientHeight;
       this.rect.width = this.options.width;
       this.rect.height = this.options.height;
-      if (this.options.position === WindowPosition.CENTER) {
-        this.rect.left = Math.max(windowWidth / 2 - this.rect.width / 2, 0);
-        this.rect.top = Math.max(windowHeight / 2 - this.rect.height / 2, 0);
-      } else {
-        if (this.options.position & WindowPosition.LEFT) {
-          this.rect.left = 0;
+      const position = this.options.position;
+      if(position instanceof Point) {
+        this.rect.left = position.x;
+        this.rect.top = position.y;
+      } else if(position instanceof RelativePosition) {
+        switch(position.horizontal) {
+          case WindowPosition.LEFT:
+            this.rect.left = position.offset.x;
+            break;
+          case WindowPosition.RIGHT:
+            this.rect.left = containerWidth - this.rect.width + position.offset.x;
+            break;
+          case WindowPosition.CENTER:
+            this.rect.left = Math.max((containerWidth - this.rect.width) / 2 + position.offset.x, 0);
+            break;
         }
-        if (this.options.position & WindowPosition.RIGHT) {
-          this.rect.left = windowWidth - this.rect.width;
-        }
-        if (this.options.position & WindowPosition.TOP) {
-          this.rect.top = 0;
-        }
-        if (this.options.position & WindowPosition.BOTTOM) {
-          this.rect.top = windowHeight - this.rect.height;
+        switch(position.vertical) {
+          case WindowPosition.TOP:
+            this.rect.top = position.offset.y;
+            break;
+          case WindowPosition.BOTTOM:
+            this.rect.top = containerHeight - this.rect.height + position.offset.y;
+            break;
+          case WindowPosition.CENTER:
+            this.rect.top = Math.max((containerHeight - this.rect.height) / 2 + position.offset.y, 0);
+            break;
         }
       }
     }
     windowElement.animate(this.options.windowAnimateKeyFrames, {
-      duration: 200,
+      duration: 300,
       fill: 'forwards',
+      easing: 'cubic-bezier(.14,.61,.37,.91)'
     });
   }
 
@@ -132,8 +142,9 @@ export class WindowController<T extends Application> {
         transform: 'scale(0.1)',
         opacity: 0,
       }], {
-        duration: 200,
+        duration: 300,
         fill: 'forwards',
+        easing: 'cubic-bezier(.14,.61,.37,.91)'
       });
       this.#resizeTypeBeforeMinimized = this.windowResizeType;
       this.windowResizeType = WindowResizeType.MINIMIZED;
@@ -152,8 +163,9 @@ export class WindowController<T extends Application> {
         width: '100%',
         height: '100%',
       }], {
-        duration: 200,
+        duration: 300,
         fill: 'forwards',
+        // easing: 'cubic-bezier(.14,.61,.37,.91)'
       });
       await this.#maximizeAnimation.finished;
       this.windowResizeType = WindowResizeType.MAXIMIZED;
@@ -193,8 +205,9 @@ export class WindowController<T extends Application> {
       await this.#windowElement.animate(
         [...this.options.windowAnimateKeyFrames].reverse(), 
         {
-          duration: 200,
+          duration: 300,
           fill: 'forwards',
+          easing: 'cubic-bezier(.49,.15,.83,.5)'
         }
       ).finished;
     }

@@ -4,6 +4,8 @@ import { omitBy, isNil } from "lodash-es";
 
 import RecentlyUsed from "@/utils/RecentlyUsed";
 import MouseShakeDetector from "@/utils/MouseShakeDetector";
+import RelativePosition from "@/utils/RelativePosition";
+import Point from "@/utils/Point";
 import Application from "./Application";
 import { WindowController } from "./WindowController";
 import { WindowType, WindowLevel, WindowResizeType, WindowControlButton, WindowPosition } from './enums';
@@ -19,7 +21,7 @@ export interface WindowOptions {
   level?: WindowLevel;
   width?: number;
   height?: number;
-  position?: number;
+  position?: Point | RelativePosition;
   resizeable?: boolean;
   titleBar?: false | WindowTitleBar;
   controlButton?: number;
@@ -33,7 +35,7 @@ export const defaultOptions: WindowOptions = {
   level: WindowLevel.MIDDLE,
   width: 800,
   height: 600,
-  position: WindowPosition.CENTER,
+  position: new RelativePosition(WindowPosition.CENTER, WindowPosition.CENTER),
   resizeable: true,
   controlButton: WindowControlButton.CLOSE | WindowControlButton.MINIMIZE | WindowControlButton.MAXIMIZE,
   availableResizeType: WindowResizeType.NORMAL | WindowResizeType.MINIMIZED | WindowResizeType.MAXIMIZED,
@@ -137,6 +139,9 @@ export default class WindowService extends Service {
     this.#windows.delete(windowController);
     this.#recentlyUsedWindows.remove(windowController);
     this.activeWindow = this.#recentlyUsedWindows.lastUsed;
+    if(this.activeWindow) {
+      this.activeWindow.active = true;
+    }
     this.#windows$.next(this.windows);
   }
 
