@@ -1,5 +1,6 @@
+import './style.less';
 export default function ExplorerView() {
   return (
-    <div> Explorer </div>
+    <div className="explorer"> Explorer </div>
   );
 }

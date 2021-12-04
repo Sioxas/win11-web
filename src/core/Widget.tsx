@@ -20,7 +20,7 @@ export default function Widget<T extends Application>({ children, controller }: 
   }, []);
 
   return <div ref={widgetRef}
-    className="window window-border window-active"
+    className="window window-border window-active widget"
     onPointerDown={(e) => {
       controller.setWindowActive(); 
       e.stopPropagation();
