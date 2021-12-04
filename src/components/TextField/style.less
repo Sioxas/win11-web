@@ -1,0 +1,53 @@
+.text-field{
+  --border-width: 1px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background-clip: padding-box, border-box;
+  background-color: rgba(0, 0, 0, 0);
+  background-image: 
+    linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255)), 
+    linear-gradient(rgb(239, 239, 239) calc(100% - var(--border-width)), rgb(146, 146, 146) calc(100% - var(--border-width)), rgb(146, 146, 146));
+  background-origin: padding-box, border-box;
+  border: var(--border-width) solid transparent;
+  transition: background-image 0.2s ease-in-out;
+  &:hover{
+    background-image: 
+      linear-gradient(rgb(247, 247, 247), rgb(247, 247, 247)), 
+      linear-gradient(rgb(229, 229, 229) calc(100% - var(--border-width)), rgb(138, 138, 138) calc(100% - var(--border-width)), rgb(138, 138, 138));
+  }
+  &:focus-within{
+    background-image: 
+      linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255)), 
+      linear-gradient(rgb(239, 239, 239) calc(100% - var(--border-width)), var(--primary-color) calc(100% - var(--border-width)), var(--primary-color));
+  }
+  
+  &__input{
+    fill: currentcolor;
+    outline: none;
+    user-select: none;
+    appearance: none;
+    border: 0px;
+    height: calc(100% - 4px);
+    margin: 2px 0;
+    padding: 0 9px;
+    height: 26px;
+    line-height: 20px;
+    width: 100%;
+    background-color: transparent;
+  }
+  &--large{
+    border-radius: 6px;
+    .text-field__input{
+      height: calc(100% - 4px);
+      margin: 4px 0;
+      padding: 0 12px;
+      height: 32px;
+      line-height: 24px;
+    }
+  }
+  &__prefix{}
+  &__suffix{}
+}

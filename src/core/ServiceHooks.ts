@@ -18,6 +18,6 @@ export const useApplicationService = serviceHooksFactory(new ApplicationService(
 
 export const useTaskBarService = serviceHooksFactory(new TaskBarService(WindowService.getInstance(), ApplicationService.getInstance()));
 
-export const useCanvasService = serviceHooksFactory(new CanvasService());
+// export const useCanvasService = serviceHooksFactory(new CanvasService());
 
 export const useContextMenuService = serviceHooksFactory(new ContextMenuService());

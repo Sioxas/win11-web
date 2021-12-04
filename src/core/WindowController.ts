@@ -1,13 +1,14 @@
 import { BehaviorSubject } from 'rxjs';
 
+import RelativePosition from '@/utils/RelativePosition';
+import Point from '@/utils/Point';
 import WindowService from './WindowService';
 import Rect from './WindowRect';
 import { WindowResizer, WindowLevel, WindowResizeType, WindowType, WindowPosition } from './enums';
 import { WindowOptions } from './WindowService';
 import Application from './Application';
 import TaskBarService from './TaskBar/TaskBarService';
-import RelativePosition from '@/utils/RelativePosition';
-import Point from '@/utils/Point';
+
 
 export class WindowController<T extends Application> {
   static windowId = 0;
@@ -86,11 +87,11 @@ export class WindowController<T extends Application> {
       this.rect.width = this.options.width;
       this.rect.height = this.options.height;
       const position = this.options.position;
-      if(position instanceof Point) {
+      if (position instanceof Point) {
         this.rect.left = position.x;
         this.rect.top = position.y;
-      } else if(position instanceof RelativePosition) {
-        switch(position.horizontal) {
+      } else if (position instanceof RelativePosition) {
+        switch (position.horizontal) {
           case WindowPosition.LEFT:
             this.rect.left = position.offset.x;
             break;
@@ -101,7 +102,7 @@ export class WindowController<T extends Application> {
             this.rect.left = Math.max((containerWidth - this.rect.width) / 2 + position.offset.x, 0);
             break;
         }
-        switch(position.vertical) {
+        switch (position.vertical) {
           case WindowPosition.TOP:
             this.rect.top = position.offset.y;
             break;
@@ -163,7 +164,7 @@ export class WindowController<T extends Application> {
         width: '100%',
         height: '100%',
       }], {
-        duration: 300,
+        duration: 200,
         fill: 'forwards',
         // easing: 'cubic-bezier(.14,.61,.37,.91)'
       });
@@ -203,9 +204,9 @@ export class WindowController<T extends Application> {
   async _close() {
     if (this.#windowElement) {
       await this.#windowElement.animate(
-        [...this.options.windowAnimateKeyFrames].reverse(), 
+        [...this.options.windowAnimateKeyFrames].reverse(),
         {
-          duration: 300,
+          duration: 200,
           fill: 'forwards',
           easing: 'cubic-bezier(.49,.15,.83,.5)'
         }

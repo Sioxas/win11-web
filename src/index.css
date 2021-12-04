@@ -29,7 +29,9 @@ code {
 
 
   --main-bg-color: #f3f3f3;
+  --secondary-bg-color: #f7f7f7;
 
   --main-border-color: #bbbbbb;
   --secondary-border-color: #B4B4B5;
+  --tertiary-border-color: #e5e5e5;
 }
