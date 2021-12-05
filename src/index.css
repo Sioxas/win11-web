@@ -22,6 +22,9 @@ code {
 
 :root{
   --primary-color: #0078D4;
+  --primary-color-light: #2894DD;
+  --primary-color-dense: #005FB2;
+  --primary-color-disabled: #82CAEE;
 
   /* 浅 */
   --color-border-1: #f2f3f5;
