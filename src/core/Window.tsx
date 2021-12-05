@@ -79,7 +79,7 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
           titleBar
             ? <div className="window-title-bar">
               <div className="window-title-bar-dragable"
-                onPointerDown={() => controller.onDragStart(0)}
+                onPointerDown={(event) => controller.onDragStart(event, 0)}
                 onDoubleClick={() => {
                   if (controlButton & WindowControlButton.MAXIMIZE)
                     resizeType! & WindowResizeType.MAXIMIZED ? controller.normalize() : controller.maximize();
@@ -100,22 +100,22 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
       resizeable && type !== WindowType.FULLSCREEN && (
         <div className="crop">
           <div className="crop-line crop-top-line"
-            onPointerDown={() => controller.onDragStart(WindowResizer.TOP)} />
+            onPointerDown={(event) => controller.onDragStart(event, WindowResizer.TOP)} />
           <div className="crop-line crop-right-line"
-            onPointerDown={() => controller.onDragStart(WindowResizer.RIGHT)} />
+            onPointerDown={(event) => controller.onDragStart(event, WindowResizer.RIGHT)} />
           <div className="crop-line crop-bottom-line"
-            onPointerDown={() => controller.onDragStart(WindowResizer.BOTTOM)} />
+            onPointerDown={(event) => controller.onDragStart(event, WindowResizer.BOTTOM)} />
           <div className="crop-line crop-left-line"
-            onPointerDown={() => controller.onDragStart(WindowResizer.LEFT)} />
+            onPointerDown={(event) => controller.onDragStart(event, WindowResizer.LEFT)} />
 
           <div className="crop-corner crop-top-left-corner"
-            onPointerDown={() => controller.onDragStart(WindowResizer.TOP | WindowResizer.LEFT)} />
+            onPointerDown={(event) => controller.onDragStart(event, WindowResizer.TOP | WindowResizer.LEFT)} />
           <div className="crop-corner crop-top-right-corner"
-            onPointerDown={() => controller.onDragStart(WindowResizer.TOP | WindowResizer.RIGHT)} />
+            onPointerDown={(event) => controller.onDragStart(event, WindowResizer.TOP | WindowResizer.RIGHT)} />
           <div className="crop-corner crop-bottom-right-corner"
-            onPointerDown={() => controller.onDragStart(WindowResizer.BOTTOM | WindowResizer.RIGHT)} />
+            onPointerDown={(event) => controller.onDragStart(event, WindowResizer.BOTTOM | WindowResizer.RIGHT)} />
           <div className="crop-corner crop-bottom-left-corner"
-            onPointerDown={() => controller.onDragStart(WindowResizer.BOTTOM | WindowResizer.LEFT)} />
+            onPointerDown={(event) => controller.onDragStart(event, WindowResizer.BOTTOM | WindowResizer.LEFT)} />
         </div>
       )
     }

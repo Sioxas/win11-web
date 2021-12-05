@@ -83,7 +83,7 @@ export class WindowController<T extends Application> {
       this.rect.top = 0;
     } else {
       let containerWidth = this.windowService.windowContainer!.clientWidth,
-        containerHeight = this.windowService.windowContainer!.clientHeight;
+         containerHeight = this.windowService.windowContainer!.clientHeight;
       this.rect.width = this.options.width;
       this.rect.height = this.options.height;
       const position = this.options.position;
@@ -214,17 +214,27 @@ export class WindowController<T extends Application> {
     }
   }
 
-  onDragStart(resizer: number) {
+  #prevScreenX = 0;
+  #prevScreenY = 0;
+
+  onDragStart(event: React.PointerEvent ,resizer: number) {
     this.#drag = true;
     this.#resizer = resizer;
+    this.#prevScreenX = event.screenX;
+    this.#prevScreenY = event.screenY;
   }
 
   onDragMove(event: MouseEvent) {
     if (!this.rect) return;
     if (!this.#drag) return;
     this.windowService.mouseShakeDetector.move(event);
-    const Δx = event.movementX / devicePixelRatio;
-    const Δy = event.movementY / devicePixelRatio;
+    // let Δx = event.movementX, Δy = event.movementY;
+    // chrome bug on Windows https://monorail-prod.appspot.com/p/chromium/issues/detail?id=907309
+    // use screenX/Y instead of movementX/Y
+    let Δx = event.screenX - this.#prevScreenX, 
+        Δy = event.screenY - this.#prevScreenY;
+    this.#prevScreenX = event.screenX;
+    this.#prevScreenY = event.screenY;
     if (this.#resizer === WindowResizer.NONE) { // drag title bar
       if (this.windowResizeType === WindowResizeType.MAXIMIZED) {
         this.#maximizeAnimation?.cancel();
