@@ -5,23 +5,16 @@
   flex-direction: row;
   box-sizing: border-box;
   border-radius: 4px;
-  background-clip: padding-box, border-box;
-  background-color: rgba(0, 0, 0, 0);
-  background-image: 
-    linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255)), 
-    linear-gradient(rgb(239, 239, 239) calc(100% - var(--border-width)), rgb(146, 146, 146) calc(100% - var(--border-width)), rgb(146, 146, 146));
-  background-origin: padding-box, border-box;
-  border: var(--border-width) solid transparent;
-  transition: background-image 0.2s ease-in-out;
+  background-color: var(--color-fill-1);
+  border: var(--border-width) solid var(--color-border-2);
+  border-bottom: var(--border-width) solid var(--color-border-3);
+  transition: background-color 0.2s ease-in-out;
   &:hover{
-    background-image: 
-      linear-gradient(rgb(247, 247, 247), rgb(247, 247, 247)), 
-      linear-gradient(rgb(229, 229, 229) calc(100% - var(--border-width)), rgb(138, 138, 138) calc(100% - var(--border-width)), rgb(138, 138, 138));
+    background-color: var(--color-fill-2);
   }
   &:focus-within{
-    background-image: 
-      linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255)), 
-      linear-gradient(rgb(239, 239, 239) calc(100% - var(--border-width)), var(--primary-color) calc(100% - var(--border-width)), var(--primary-color));
+    background-color: #FFF;
+    border-bottom: var(--border-width) solid var(--primary-color);
   }
   
   &__input{
@@ -46,6 +39,7 @@
       padding: 0 12px;
       height: 32px;
       line-height: 24px;
+      font-size: 16px;
     }
   }
   &__prefix{}

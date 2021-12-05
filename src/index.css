@@ -23,15 +23,30 @@ code {
 :root{
   --primary-color: #0078D4;
 
-  --primary-text-color: #1A1A1A; 
-  --secondary-text-color: #5B5D5F;
-  --tertiary-text-color: #646464;
+  /* 浅 */
+  --color-border-1: #f2f3f5;
+  /* 一般 */
+  --color-border-2: #e5e6eb;
+  /* 深/悬浮 */
+  --color-border-3: #c9cdd4;
+  /* 重/按钮描边 */
+  --color-border-4: #86909c;
 
+  /* 浅/禁用 */
+  --color-fill-1: #f7f8fa;
+  /* 常规/白底悬浮 */
+  --color-fill-2: #f2f3f5;
+  /* 深/灰底悬浮 */
+  --color-fill-3: #e5e6eb;
+  /* 重/特殊场景 */
+  --color-fill-4: #c9cdd4;
 
-  --main-bg-color: #f3f3f3;
-  --secondary-bg-color: #f7f7f7;
-
-  --main-border-color: #bbbbbb;
-  --secondary-border-color: #B4B4B5;
-  --tertiary-border-color: #e5e5e5;
+  /* 强调/正文标题 */
+  --color-text-1: #1d2129;
+  /* 次强调/正文标题 */
+  --color-text-2: #4e5969;
+  /* 次要信息 */
+  --color-text-3: #86909c;
+  /* 置灰信息 */
+  --color-text-4: #c9cdd4;
 }
