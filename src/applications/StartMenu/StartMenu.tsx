@@ -26,14 +26,16 @@ const apps = [
 export default function StartMenuView() {
   return (
     <div className="start-menu">
-      <TextField placeholder='在此键入以搜索' size='large' />
+      <TextField placeholder='在此键入以搜索' size='large' prefix={
+        <span className="iconfont icon-sousuo" />
+      } />
       <div className="pinned-apps">
         <div className="pinned-apps-header">
           <div className="pinned-apps-header-title">
             已固定
           </div>
           <div className="pinned-apps-header-more">
-            <Button size="mini">更多</Button>
+            <Button size="mini">全部应用</Button>
           </div>
         </div>
         <div className="pinned-apps-content">

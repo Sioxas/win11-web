@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import classNames from "classnames";
 
 import './style.less';
@@ -16,6 +16,7 @@ export interface TextFieldProps {
   value?: string;
   disabled?: boolean;
   size?: 'small' | 'medium' | 'large';
+  prefix?: ReactNode;
 }
 
 export default function TextField(props: TextFieldProps) {
@@ -30,6 +31,7 @@ export default function TextField(props: TextFieldProps) {
     disabled,
     type,
     size,
+    prefix,
     ...rest
   } = props;
 
@@ -48,8 +50,8 @@ export default function TextField(props: TextFieldProps) {
   return (
     <div className={classNames('text-field', {
       'text-field--large': size === 'large',
-    },className)}>
-      <span className='text-field__prefix'></span>
+    }, className)}>
+      {prefix && <span className='text-field__prefix'>{prefix}</span>}
       <input
         className='text-field__input'
         type={type}

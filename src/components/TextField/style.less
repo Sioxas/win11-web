@@ -3,12 +3,14 @@
   position: relative;
   display: flex;
   flex-direction: row;
+  align-items: center;
   box-sizing: border-box;
   border-radius: 4px;
   background-color: var(--color-fill-1);
   border: var(--border-width) solid var(--color-border-2);
   border-bottom: var(--border-width) solid var(--color-border-3);
   transition: background-color 0.2s ease-in-out;
+  padding: 0 9px;
   &:hover{
     background-color: var(--color-fill-2);
   }
@@ -23,25 +25,32 @@
     user-select: none;
     appearance: none;
     border: 0px;
-    height: calc(100% - 4px);
-    margin: 2px 0;
-    padding: 0 9px;
     height: 26px;
     line-height: 20px;
-    width: 100%;
     background-color: transparent;
+    flex-grow: 1;
+  }
+  &__prefix{
+    margin-right: 4px;
+  }
+  &__suffix{
+
   }
   &--large{
     border-radius: 6px;
+    padding: 0 12px;
     .text-field__input{
-      height: calc(100% - 4px);
-      margin: 4px 0;
-      padding: 0 12px;
       height: 32px;
       line-height: 24px;
-      font-size: 16px;
+      font-size: 14px;
+    }
+    .text-field__prefix{
+      font-size: 14px;
+      margin-right: 4px;
+    }
+    .text-field__suffix{
+      font-size: 14px;
+
     }
   }
-  &__prefix{}
-  &__suffix{}
 }
