@@ -2,7 +2,7 @@ import { BehaviorSubject } from "rxjs";
 
 import Service from "../Service";
 import { MenuPanel, ContextMenuItem } from "./interface";
-import { getAjustedPosition, getMenuHeight } from "./utils";
+import { getAjustedPosition, getMenuHeight, MENU_PADDING } from "./utils";
 
 export default class ContextMenuService extends Service {
   menuPanels$ = new BehaviorSubject<MenuPanel[]>([]);
@@ -58,8 +58,8 @@ export default class ContextMenuService extends Service {
       // find element parent which has context-menu-item class
       const element = (event.target as HTMLElement).closest('.context-menu-item');
       if (element) {
-        const rect = (element as HTMLElement).getBoundingClientRect(),
-          [x, y] = getAjustedPosition(rect.right - 8, rect.top, last.children!);
+        const rect = (element as HTMLElement).getBoundingClientRect();
+        const [x, y] = getAjustedPosition(rect.right - 8, rect.top - MENU_PADDING, last.children!, 120);
         panels = [...panels, { x, y, options: last.children! }];
         this.#path = path;
         // compute the intercection point of p1p2 and p3p4

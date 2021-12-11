@@ -4,6 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1000;
 }
 
 .context-menu{
@@ -11,35 +12,41 @@
   flex-direction: column;
   min-width: 120px;
   margin: 0;
-  padding: 8px 0px;
+  padding: 4px;
   position: absolute;
-  z-index: 14;
-  border-radius: 2px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-border-3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
   user-select: none;
   cursor: default;
-  box-shadow: 0 5px 17px rgba(0,0,0,0.2),0 2px 7px rgba(0,0,0,0.15),inset 0 0 0 0.5px #000,0 0 0 0.5px rgba(0,0,0,0.1);
   list-style: none;
-  background-color: #222;
   li{
     margin: 0;
   }
   &-item{
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
     font-family: Inter, sans-serif;
     display: flex;
     align-items: center;
-    flex: 0 0 24px;
-    line-height: 24px;
+    flex: 0 0 32px;
+    line-height: 32px;
     fill: #fff;
-    color: #fff;
+    color: var(--color-text-1);
     cursor: default;
     text-decoration: none;
     text-align: left;
     white-space: nowrap;
     padding: 0px 16px;
+    border-radius: 4px;
+    transition: background-color 0.1s;
     &:hover{
-      background-color: #18A0FB;
+      background-color: rgba(0, 0, 0, 0.1);
     }
   }
   &-separator{
