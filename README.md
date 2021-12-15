@@ -8,9 +8,9 @@ WIP
 - ~~WindowService~~
 - ~~ApplicationService~~
 - Desktop
-- TaskBar
+- ~~TaskBar~~
 - StartMenu
-- ContextMenu
+- ~~ContextMenu~~
 
 ## Applications
 - Explorer
