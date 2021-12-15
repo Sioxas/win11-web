@@ -14,9 +14,3 @@ export interface ContextMenuItem {
   children?: ContextMenuItem[];
   onSelect?: (path: ContextMenuItem[]) => void;
 }
-
-export interface MenuPanel{
-  x: number;
-  y: number;
-  options: ContextMenuItem[];
-}

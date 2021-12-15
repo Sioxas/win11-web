@@ -2,10 +2,10 @@ import React from "react";
 import { BehaviorSubject } from "rxjs";
 import { omitBy, isNil } from "lodash-es";
 
-import RecentlyUsed from "@/utils/RecentlyUsed";
 import MouseShakeDetector from "@/utils/MouseShakeDetector";
 import RelativePosition from "@/utils/RelativePosition";
 import Point from "@/utils/Point";
+import LRU from "@/utils/LRUCache";
 import Application from "./Application";
 import { WindowController } from "./WindowController";
 import { WindowType, WindowLevel, WindowResizeType, WindowControlButton, WindowPosition } from './enums';
@@ -60,7 +60,7 @@ export default class WindowService extends Service {
 
   #windows = new Map<WindowController<Application>, WindowViewConfig>();
 
-  #recentlyUsedWindows = new RecentlyUsed<WindowController<Application>>();
+  #recentlyUsedWindows = new LRU<WindowController<Application>, null>(Infinity);
 
   #activeWindow$ = new BehaviorSubject<WindowController<Application> | null>(null);
   get activeWindow$() {
@@ -72,7 +72,7 @@ export default class WindowService extends Service {
   set activeWindow(windowController: WindowController<Application> | null) {
     this.#activeWindow$.next(windowController);
     if (windowController) {
-      this.#recentlyUsedWindows.touch(windowController);
+      this.#recentlyUsedWindows.set(windowController, null);
     }
   }
 
@@ -138,7 +138,7 @@ export default class WindowService extends Service {
     await windowController._close();
     this.#windows.delete(windowController);
     this.#recentlyUsedWindows.remove(windowController);
-    this.activeWindow = this.#recentlyUsedWindows.lastUsed;
+    this.activeWindow = this.#recentlyUsedWindows.mostUsed ?? null;
     if(this.activeWindow) {
       this.activeWindow.active = true;
     }
@@ -146,7 +146,7 @@ export default class WindowService extends Service {
   }
 
   setWindowInactive(windowController: WindowController<Application>) {
-    const controllers = this.#recentlyUsedWindows.items;
+    const controllers = Array.from(this.#recentlyUsedWindows.cache.keys());
     if (this.activeWindow === windowController) {
       // find first non-minimized window
       const controller = controllers.find(controller =>

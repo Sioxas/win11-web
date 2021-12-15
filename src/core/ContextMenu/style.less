@@ -25,6 +25,7 @@
   user-select: none;
   cursor: default;
   list-style: none;
+  box-sizing: border-box;
   li{
     margin: 0;
   }
@@ -35,6 +36,7 @@
     display: flex;
     align-items: center;
     flex: 0 0 32px;
+    height: 32px;
     line-height: 32px;
     fill: #fff;
     color: var(--color-text-1);
@@ -42,11 +44,20 @@
     text-decoration: none;
     text-align: left;
     white-space: nowrap;
-    padding: 0px 16px;
     border-radius: 4px;
     transition: background-color 0.1s;
     &:hover{
       background-color: rgba(0, 0, 0, 0.1);
+    }
+    &-title{
+      flex-grow: 1;
+      padding: 0 8px;
+    }
+    &-icon{
+      width: 16px;
+    }
+    &-checkmark{
+      width: 14px;
     }
   }
   &-separator{

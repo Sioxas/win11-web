@@ -1,40 +1,20 @@
 import classNames from "classnames";
 
-import { useContextMenuService } from "../ServiceHooks";
 import { ContextMenuItem, ContextMenuType } from "./interface";
-import { getAjustedPosition } from "./utils";
+import MenuPanelController from "./MenuPanelController";
 
 interface ContextMenuProps {
-  x: number;
-  y: number;
-  options: ContextMenuItem[];
+  panel: MenuPanelController;
   path: ContextMenuItem[];
 }
 
-export default function ContextMenu(props: ContextMenuProps) {
-  const { x, y, options } = props;
+export default function MenuPanel({ panel, path }: ContextMenuProps) {
+  const { x, y, width, options, hasCheckbox, hasIcon } = panel;
 
-  const contextMenuService = useContextMenuService();
-
-  let
-    hasCheckbox = false,
-    hasIcon = false;
-
-  for (const option of options) {
-    if (option.type !== ContextMenuType.Menu)
-      continue;
-    if (option.checked)
-      hasCheckbox = true;
-    if (option.icon)
-      hasIcon = true;
-    if (hasCheckbox && hasIcon)
-      break;
-  }
-
-  const [left, top] = getAjustedPosition(x, y, options).map(v => v + "px");
+  const [left, top] = [x, y].map(v => v + "px");
 
   return (
-    <ul className="context-menu" style={{ left, top }}>
+    <ul className="context-menu" style={{ left, top, width: `${width}px` }}>
       {options.map((option, index) => {
 
         const { type, text, icon, shortcut, checked, disabled, children } = option;
@@ -56,7 +36,7 @@ export default function ContextMenu(props: ContextMenuProps) {
           default:
             return (
               <li key={`item-${index}`}
-                onPointerEnter={(event) => contextMenuService.onPointerEnter(event, [...props.path, option])}
+                onPointerEnter={(event) => panel.onPointerEnter(event, [...path, option])}
                 className={classNames('context-menu-item', {
                   'context-menu-item-disabled': disabled,
                 })}
@@ -68,8 +48,10 @@ export default function ContextMenu(props: ContextMenuProps) {
                 <div className="context-menu-item-title">
                   {text}
                 </div>
-                {shortcut && <span className="context-menu-item-shortcut">{shortcut}</span>}
-                {children && children.length > 0 && <span className="context-menu-item-children-mark">{'>'}</span>}
+                {shortcut && <div className="context-menu-item-shortcut">{shortcut}</div>}
+                {children && children.length > 0 && <div className="context-menu-item-children-mark">
+                  <i className="iconfont icon-right"></i>
+                </div>}
               </li>
             );
         }

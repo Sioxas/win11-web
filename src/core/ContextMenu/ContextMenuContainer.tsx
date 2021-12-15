@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useObservableState } from 'observable-hooks'
 
-import ContextMenu from './ContextMenu';
+import MenuPanel from './MenuPanel';
 import { useContextMenuService } from '../ServiceHooks';
 
 import { menus } from './test';
@@ -12,7 +12,7 @@ export default function ContextMenuContainer() {
 
   const contextMenuService = useContextMenuService();
 
-  const menuPanels = useObservableState(contextMenuService.menuPanels$);
+  const panels = useObservableState(contextMenuService.panels$);
 
   const path = useObservableState(contextMenuService.path$);
 
@@ -27,16 +27,14 @@ export default function ContextMenuContainer() {
     }
   }, []);
 
-  if (!menuPanels.length) return null;
+  if (!panels.length) return null;
 
   return (
     <div className="fullscreen-prevent-events" onClick={() => contextMenuService.close()}>
       {
-        menuPanels.map((panel, index) => <ContextMenu
+        panels.map((panel, index) => <MenuPanel
           key={index}
-          x={panel.x}
-          y={panel.y}
-          options={panel.options}
+          panel={panel}
           path={path.slice(0, index)}
         />)
       }
