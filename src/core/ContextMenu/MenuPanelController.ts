@@ -9,8 +9,8 @@ const MENU_BORDER_WIDTH = 1;
 const MENU_MIN_WIDTH = 120;
 const MENU_PANEL_PADDING = 4;
 const MENU_ICON_SIZE = 16;
-const MENU_CHECKBOX_SIZE = 14;
-const MORE_ICON_SIZE = 16;
+const MENU_CHECKBOX_SIZE = 14 + 8;
+const MORE_ICON_SIZE = 16 + 8;
 
 export default class MenuPanelController {
   private static textRuler = new TextRuler('14px normal Inter, sans-serif');
@@ -29,7 +29,7 @@ export default class MenuPanelController {
 
   constructor(x: number, y: number, public options: ContextMenuItem[], parent?: MenuPanelController) {
     for (const option of options) {
-      if (option.type !== ContextMenuType.Menu)
+      if (option.type === ContextMenuType.Separator)
         continue;
       if (option.checked)
         this.hasCheckbox = true;
@@ -42,28 +42,32 @@ export default class MenuPanelController {
     const height = this.height = this.getMenuHeight(options);
     if (parent) y -= MENU_PANEL_PADDING;
     this.y = Math.min(y, window.innerHeight - height);
-    if(parent) x -= MENU_PANEL_PADDING;
-    if(x > window.innerWidth - width){
+    if (parent) x -= MENU_PANEL_PADDING;
+    if (x > window.innerWidth - width) {
       this.x = x - width;
-      if(parent) {
+      if (parent) {
         this.x = this.x - parent.width + MENU_PANEL_PADDING * 2;
-      } 
-    }else{
+      }
+    } else {
       this.x = x;
     }
   }
 
   private getMenuWidth(options: ContextMenuItem[]) {
-    const longestTextWidth = options
+    const longestItemWidth = options
       .map(option => {
+        if (!option.text) return 0;
         let itemWidth = MenuPanelController.textRuler.measureText(option.text);
-        if(option.children && option.children.length > 0) itemWidth += MORE_ICON_SIZE;
+        if (option.children && option.children.length > 0)
+          itemWidth += MORE_ICON_SIZE;
         return itemWidth;
       })
       .reduce((a, b) => a > b ? a : b);
-    let menuWidth = longestTextWidth + MENU_TEXT_PADDING + MENU_PANEL_PADDING * 2 + MENU_BORDER_WIDTH * 2;
-    if (this.hasCheckbox) menuWidth += MENU_CHECKBOX_SIZE + MENU_PANEL_PADDING;
-    if (this.hasIcon) menuWidth += MENU_ICON_SIZE + MENU_PANEL_PADDING;
+    let menuWidth = longestItemWidth + MENU_TEXT_PADDING + MENU_PANEL_PADDING * 2 + MENU_BORDER_WIDTH * 2;
+    if (this.hasCheckbox)
+      menuWidth += MENU_CHECKBOX_SIZE;
+    if (this.hasIcon)
+      menuWidth += MENU_ICON_SIZE;
     return Math.max(menuWidth, MENU_MIN_WIDTH);
   }
 
@@ -123,12 +127,5 @@ export default class MenuPanelController {
     }
     if (panels !== this.contextMenuSerivce.panels)
       this.contextMenuSerivce.panels = panels;
-  }
-
-  onSelect(path: ContextMenuItem[]) {
-    if (!path.length) return;
-    const last = path[path.length - 1];
-    last.onSelect?.(path);
-    // close();
   }
 }

@@ -1,10 +1,7 @@
-import { useEffect } from 'react';
 import { useObservableState } from 'observable-hooks'
 
 import MenuPanel from './MenuPanel';
 import { useContextMenuService } from '../ServiceHooks';
-
-import { menus } from './test';
 
 import './style.less';
 
@@ -15,17 +12,6 @@ export default function ContextMenuContainer() {
   const panels = useObservableState(contextMenuService.panels$);
 
   const path = useObservableState(contextMenuService.path$);
-
-  useEffect(() => {
-    function handleContextmenu(e: MouseEvent) {
-      e.preventDefault();
-      contextMenuService.show(e.clientX, e.clientY, menus);
-    }
-    document.body.addEventListener('contextmenu', handleContextmenu);
-    return () => {
-      document.body.removeEventListener('contextmenu', handleContextmenu);
-    }
-  }, []);
 
   if (!panels.length) return null;
 

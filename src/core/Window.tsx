@@ -5,6 +5,8 @@ import classNames from 'classnames';
 import { WindowController } from './WindowController';
 import { WindowResizeType, WindowResizer, WindowControlButton, WindowType } from './enums';
 import Application from './Application';
+import { useContextMenuService } from './ServiceHooks';
+import { ContextMenuItem, ContextMenuType } from './ContextMenu';
 
 import './Window.less';
 
@@ -20,6 +22,8 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
   const active = useObservableState(controller.active$);
 
   const windowRef = useRef<HTMLDivElement>(null);
+
+  const contextMenuService = useContextMenuService();
 
   useEffect(() => {
     const windowElement = windowRef.current;
@@ -59,6 +63,36 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
     </div>,
   ].filter(Boolean);
 
+  const titleBarContextMenu: ContextMenuItem[] = [
+    {
+      text: '还原',
+      disabled: !(Boolean(controlButton & WindowControlButton.MAXIMIZE) && resizeType === WindowResizeType.MAXIMIZED),
+      icon: 'icon-restore',
+      onSelect: () => controller.normalize(),
+    },
+    {
+      text: '最小化',
+      disabled: !Boolean(controlButton & WindowControlButton.MINIMIZE),
+      icon: 'icon-minimize',
+      onSelect: () => controller.minimize(),
+    },
+    {
+      text: '最大化',
+      disabled: !(Boolean(controlButton & WindowControlButton.MAXIMIZE) && resizeType === WindowResizeType.NORMAL),
+      icon: 'icon-maximize',
+      onSelect: () => controller.maximize(),
+    },
+    {
+      type: ContextMenuType.Separator,
+    },
+    {
+      text: '关闭',
+      disabled: !Boolean(controlButton & WindowControlButton.CLOSE),
+      icon: 'icon-close',
+      onSelect: () => controller.close(),
+    }
+  ];
+
   return <div ref={windowRef}
     className={classNames('window', {
       'window-minimize': resizeType === WindowResizeType.MINIMIZED,
@@ -71,6 +105,11 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
     onPointerDown={(e) => { 
       controller.setWindowActive(); 
       e.stopPropagation();
+    }}
+    onContextMenu={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      contextMenuService.show(e.clientX, e.clientY, titleBarContextMenu);
     }}
   >
     {

@@ -23,6 +23,9 @@ export default class ContextMenuService extends Service {
 
   constructor() {
     super();
+    document.body.addEventListener('contextmenu',(e)=>{
+      e.preventDefault();
+    });
   }
 
   show(x: number, y: number, options: ContextMenuItem[]) {

@@ -9,7 +9,7 @@ export default class TextRuler {
     const canvas = document.createElement("canvas");
     const textRuler = canvas.getContext("2d");
     if (!textRuler) throw new Error("Canvas context is not available.");
-    if(font) textRuler.font = font;
+    if (font) textRuler.font = font;
     this.ruler = textRuler;
   }
 
@@ -18,7 +18,6 @@ export default class TextRuler {
     if (width == null) {
       width = this.ruler.measureText(text).width;
       this.cache.set(text, width);
-      console.log('measureText', text, width);
     }
     return width;
   }

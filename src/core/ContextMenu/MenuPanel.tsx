@@ -9,6 +9,7 @@ interface ContextMenuProps {
 }
 
 export default function MenuPanel({ panel, path }: ContextMenuProps) {
+
   const { x, y, width, options, hasCheckbox, hasIcon } = panel;
 
   const [left, top] = [x, y].map(v => v + "px");
@@ -40,10 +41,14 @@ export default function MenuPanel({ panel, path }: ContextMenuProps) {
                 className={classNames('context-menu-item', {
                   'context-menu-item-disabled': disabled,
                 })}
+                onClick={() => {
+                  if(!option.disabled)
+                    option.onSelect?.(path);
+                }}
               >
                 {hasCheckbox && <span className="context-menu-item-checkmark">{checked ? '√' : ''}</span>}
                 {hasIcon && <div className="context-menu-item-icon">
-                  {icon && <img src={icon} />}
+                  {icon && (icon.startsWith('icon') ? <i className={`iconfont ${icon}`} /> : <img src={icon} />)}
                 </div>}
                 <div className="context-menu-item-title">
                   {text}

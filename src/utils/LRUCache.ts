@@ -4,7 +4,7 @@ export default class LRU<K, V> {
   constructor(public capacity = 256) { }
 
   get(key: K) {
-    if(!this.cache.has(key)) return;
+    if (!this.cache.has(key)) return;
     let item = this.cache.get(key);
     if (item) {
       // refresh key
