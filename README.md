@@ -11,6 +11,7 @@ WIP
 - ~~TaskBar~~
 - StartMenu
 - ~~ContextMenu~~
+- FileSystem
 
 ## Applications
 - Explorer
@@ -18,3 +19,7 @@ WIP
 - Browser
 - VMs
 - Calculator
+- Paint
+- Setting
+- Music
+- Movie & Video
