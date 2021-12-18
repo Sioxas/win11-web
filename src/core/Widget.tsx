@@ -25,6 +25,10 @@ export default function Widget<T extends Application>({ children, controller }: 
       controller.setWindowActive(); 
       e.stopPropagation();
     }}
+    onContextMenu={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }}
   >
     {children}
   </div>

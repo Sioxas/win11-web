@@ -109,7 +109,6 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
     onContextMenu={(e) => {
       e.preventDefault();
       e.stopPropagation();
-      contextMenuService.show(e.clientX, e.clientY, titleBarContextMenu);
     }}
   >
     {
@@ -122,6 +121,11 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
                 onDoubleClick={() => {
                   if (controlButton & WindowControlButton.MAXIMIZE)
                     resizeType! & WindowResizeType.MAXIMIZED ? controller.normalize() : controller.maximize();
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  contextMenuService.show(e.clientX, e.clientY, titleBarContextMenu);
                 }}
               >
                 <div className="window-title-bar-icon" draggable="false">
