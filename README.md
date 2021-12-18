@@ -20,6 +20,6 @@ WIP
 - VMs
 - Calculator
 - Paint
-- Setting
-- Music
+- Settings
+- Music & Audio
 - Movie & Video
