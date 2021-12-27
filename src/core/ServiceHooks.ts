@@ -6,6 +6,7 @@ import CanvasService from "./Canvas/CanvasService";
 import { ContextMenuService } from "./ContextMenu";
 import WindowService from "./WindowService";
 import TaskBarService from "./TaskBar/TaskBarService";
+import Overlay from "./Overlay/Overlay";
 
 function serviceHooksFactory<T extends Service>(service: T) {
   const ServiceContext = React.createContext<T>(service);
@@ -21,3 +22,5 @@ export const useTaskBarService = serviceHooksFactory(new TaskBarService(WindowSe
 // export const useCanvasService = serviceHooksFactory(new CanvasService());
 
 export const useContextMenuService = serviceHooksFactory(new ContextMenuService());
+
+export const useOverlay = serviceHooksFactory(new Overlay());
