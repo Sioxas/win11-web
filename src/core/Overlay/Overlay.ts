@@ -26,4 +26,12 @@ export default class Overlay extends Service {
     return overlay;
   }
 
+  append(overlay: OverlayController){
+    this.overlays$.next([...this.overlays$.getValue(), overlay]);
+  }
+
+  remove(overlay: OverlayController){
+    this.overlays$.next(this.overlays$.getValue().filter((o) => o !== overlay));
+  }
+
 }

@@ -6,6 +6,7 @@ import OverlayController from "./OverlayController";
 
 export default function OverlayContainer() {
   const overlay = useOverlay();
+
   const overlays = useObservableState(overlay.overlays$);
 
   const nodes: React.ReactNode[] = [];

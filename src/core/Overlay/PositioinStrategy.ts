@@ -49,7 +49,7 @@ export class ConnectionPositionPair {
 /** Strategy for setting the position on an overlay. */
 export interface PositionStrategy {
   /** Attaches this position strategy to an overlay. */
-  attach(overlayRef: OverlayController): void;
+  attach(overlay: OverlayController): void;
 
   /** Updates the position of the overlay element. */
   apply(): void;
