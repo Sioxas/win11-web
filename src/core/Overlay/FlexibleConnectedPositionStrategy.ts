@@ -53,11 +53,38 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     throw new Error("Method not implemented.");
   }
   apply(): void {
-    if(!this.#origin || !this.#overlayElement) {
+    if (!this.#origin || !this.#overlayElement) {
       throw new Error("Origin and overlay must be set before calling apply.");
     }
     const originRect = this.#getOriginRect();
     const overlayRect = this.#overlayElement.getBoundingClientRect();
+
+    // Fallback if none of the preferred positions fit within the viewport.
+    let fallback: FallbackPosition | undefined;
+
+    for (const pos of this.#preferredPositions) {
+      const originPoint = this.#getOriginPoint(originRect, pos);
+      const overlayPoint = this.#getOverlayPoint(originPoint, overlayRect, pos);
+      const overlayFit = this.#getOverlayFit(overlayPoint, overlayRect, pos);
+      // If the overlay, without any further work, fits into the viewport, use this position.
+      if (overlayFit.isCompletelyWithinViewport) {
+        // this._isPushed = false;
+        this.#applyPosition(pos, originPoint);
+        return;
+      }
+
+      // If the current preferred position does not fit on the screen, remember the position
+      // if it has more visible area on-screen than we've seen and move onto the next preferred
+      // position.
+      if (!fallback || fallback.overlayFit.visibleArea < overlayFit.visibleArea) {
+        fallback = {overlayFit, overlayPoint, originPoint, position: pos, overlayRect};
+      }
+    }
+
+    // All options for getting the overlay within the viewport have been exhausted, so go with the
+    // position that went off-screen the least.
+    this.#applyPosition(fallback!.position, fallback!.originPoint);
+
   }
   dispose(): void {
     throw new Error("Method not implemented.");
@@ -71,7 +98,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
   /** Returns the ClientRect of the current origin. */
   #getOriginRect(): Dimensions {
     const origin = this.#origin;
-    if(!origin) {
+    if (!origin) {
       throw new Error("Origin not set.");
     }
 
@@ -83,7 +110,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     if (isRefObject(origin)) {
       if (origin.current)
         return origin.current.getBoundingClientRect();
-      else 
+      else
         throw new Error("RefObject origin is not a valid HTMLElement");
     }
 
@@ -101,19 +128,88 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     };
   }
 
+  /**
+   * Gets the (x, y) coordinate of a connection point on the origin based on a relative position.
+   */
   #getOriginPoint(originRect: Dimensions, position: ConnectionPositionPair): Point {
     const { originX, originY } = position;
-    const x = originX === 'center'
-      ? (originRect.left + originRect.right) / 2
-      : originX === 'end'
-        ? originRect.right
-        : originRect.left;
-    const y = originY === 'center'
-      ? (originRect.top + originRect.bottom) / 2
-      : originY === 'bottom'
-        ? originRect.bottom
-        : originRect.top;
-    return {x,y};
+    let x: number, y: number;
+    if (originX === 'center') {
+      x = originRect.left + originRect.width / 2;
+    } else {
+      x = originX === 'start' ? originRect.left : originRect.right;
+    }
+    if (originY === 'center') {
+      y = originRect.top + originRect.height / 2;
+    } else {
+      y = originY === 'top' ? originRect.top : originRect.bottom;
+    }
+    return { x, y };
+  }
+
+  /**
+   * Gets the (x, y) coordinate of the top-left corner of the overlay given a given position and
+   * origin point to which the overlay should be connected.
+   */
+  #getOverlayPoint(originPoint: Point, overlayRect: Dimensions, position: ConnectionPositionPair): Point {
+    const { overlayX, overlayY } = position;
+    let x: number, y: number;
+    if (overlayX === 'center') {
+      x = - overlayRect.width / 2;
+    } else {
+      x = overlayX === 'start' ? 0 : - overlayRect.width;
+    }
+    if (overlayY === 'center') {
+      y = - overlayRect.height / 2;
+    } else {
+      y = overlayY === 'top' ? 0 : - overlayRect.height;
+    }
+    x += originPoint.x;
+    y += originPoint.y;
+    return { x, y };
+  }
+
+  #getOverlayFit(
+    point: Point,
+    overlay: Dimensions,
+    position: ConnectionPositionPair
+  ): OverlayFit {
+    let { x, y } = point;
+    x += position.offsetX;
+    y += position.offsetY;
+    // How much the overlay would overflow at this position, on each side.
+    let leftOverflow = 0 - x;
+    let rightOverflow = x + overlay.width - window.innerWidth;
+    let topOverflow = 0 - y;
+    let bottomOverflow = y + overlay.height - window.innerHeight;
+
+    // Visible parts of the element on each axis.
+    let visibleWidth = this.#subtractOverflows(overlay.width, leftOverflow, rightOverflow);
+    let visibleHeight = this.#subtractOverflows(overlay.height, topOverflow, bottomOverflow);
+    let visibleArea = visibleWidth * visibleHeight;
+
+    return {
+      visibleArea,
+      isCompletelyWithinViewport: overlay.width * overlay.height === visibleArea,
+      fitsInViewportVertically: visibleHeight === overlay.height,
+      fitsInViewportHorizontally: visibleWidth == overlay.width,
+    };
+  }
+
+  /** Subtracts the amount that an element is overflowing on an axis from its length. */
+  #subtractOverflows(length: number, ...overflows: number[]): number {
+    return overflows.reduce((currentValue: number, currentOverflow: number) => {
+      return currentValue - Math.max(currentOverflow, 0);
+    }, length);
+  }
+
+  /**
+   * Applies a computed position to the overlay and emits a position change.
+   * @param position The position preference
+   * @param originPoint The point on the origin element where the overlay is connected.
+   */
+  #applyPosition(position: ConnectionPositionPair, originPoint: Point) {
+    // TODO: 
   }
 
 }
@@ -135,4 +231,13 @@ interface OverlayFit {
 
   /** The total visible area (in px^2) of the overlay inside the viewport. */
   visibleArea: number;
+}
+
+/** Record of the measurments determining whether an overlay will fit in a specific position. */
+interface FallbackPosition {
+  position: ConnectionPositionPair;
+  originPoint: Point;
+  overlayPoint: Point;
+  overlayFit: OverlayFit;
+  overlayRect: Dimensions;
 }

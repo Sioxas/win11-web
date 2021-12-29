@@ -33,9 +33,9 @@ export class ConnectionPositionPair {
     origin: OriginConnectionPosition,
     overlay: OverlayConnectionPosition,
     /** Offset along the X axis. */
-    public offsetX?: number,
+    public offsetX: number = 0,
     /** Offset along the Y axis. */
-    public offsetY?: number,
+    public offsetY: number = 0,
     /** Class(es) to be applied to the panel while this position is active. */
     public panelClass?: string | string[],
   ) {
