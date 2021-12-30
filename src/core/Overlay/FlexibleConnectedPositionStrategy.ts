@@ -1,4 +1,4 @@
-import React from "react";
+import { RefObject } from "react";
 
 import Point from "@/utils/Point";
 import { ConnectionPositionPair, PositionStrategy } from "./PositioinStrategy";
@@ -7,7 +7,7 @@ import OverlayController from "./OverlayController";
 /** Possible values that can be set as the origin of a FlexibleConnectedPositionStrategy. */
 export type FlexibleConnectedPositionStrategyOrigin =
   HTMLElement |
-  React.RefObject<HTMLElement> |
+  RefObject<HTMLElement> |
   (Point & {
     width?: number;
     height?: number;
@@ -20,7 +20,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
 
   #origin?: FlexibleConnectedPositionStrategyOrigin;
 
-  #overlayRef?: React.RefObject<HTMLElement>;
+  #overlayRef?: RefObject<HTMLElement>;
 
   get #overlayElement(): HTMLElement | null {
     return this.#overlayRef?.current ?? null;
@@ -307,7 +307,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
   }
 }
 
-function isRefObject(ref: any): ref is React.RefObject<HTMLElement> {
+function isRefObject(ref: any): ref is RefObject<HTMLElement> {
   return typeof ref === 'object' && ref.current instanceof HTMLElement;
 }
 
