@@ -28,7 +28,15 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
 
   #container: HTMLElement | Document = document;
 
+  #getHostElement() {
+    return this.#container;
+  }
+
   #preferredPositions: ConnectionPositionPair[] = [];
+
+  #verticalFlexible: boolean = false;
+
+  #horizontalFlexible: boolean = false;
 
   constructor(connectedTo: FlexibleConnectedPositionStrategyOrigin) {
     this.setOrigin(connectedTo);
@@ -49,9 +57,11 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
   attach(controller: OverlayController): void {
     this.#overlayRef = controller.overlayRef;
   }
+
   detach(): void {
     throw new Error("Method not implemented.");
   }
+
   apply(): void {
     if (!this.#origin || !this.#overlayElement) {
       throw new Error("Origin and overlay must be set before calling apply.");
@@ -69,7 +79,14 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
       // If the overlay, without any further work, fits into the viewport, use this position.
       if (overlayFit.isCompletelyWithinViewport) {
         // this._isPushed = false;
-        this.#applyPosition(pos, originPoint);
+        this.#applyPosition(pos, overlayPoint);
+        return;
+      }
+
+      // If the overlay has flexible coordinate, we can use this position
+      if (this.#canFitWithFlexibleCoordinate(overlayFit, overlayPoint, overlayRect)) {
+        const overlayFlexiblePoint = this.#getOverlayFlexiblePoint(overlayFit, overlayPoint, overlayRect);
+        this.#applyPosition(pos, overlayFlexiblePoint);
         return;
       }
 
@@ -77,7 +94,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
       // if it has more visible area on-screen than we've seen and move onto the next preferred
       // position.
       if (!fallback || fallback.overlayFit.visibleArea < overlayFit.visibleArea) {
-        fallback = {overlayFit, overlayPoint, originPoint, position: pos, overlayRect};
+        fallback = { overlayFit, overlayPoint, originPoint, position: pos, overlayRect };
       }
     }
 
@@ -92,6 +109,16 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
 
   withPositions(positions: ConnectionPositionPair[]): this {
     this.#preferredPositions = positions;
+    return this;
+  }
+
+  withHorizontalFlexible(horizontalFlexible = true): this {
+    this.#horizontalFlexible = horizontalFlexible;
+    return this;
+  }
+
+  withVerticalFlexible(verticalFlexible = true): this {
+    this.#verticalFlexible = verticalFlexible;
     return this;
   }
 
@@ -164,8 +191,8 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     } else {
       y = overlayY === 'top' ? 0 : - overlayRect.height;
     }
-    x += originPoint.x;
-    y += originPoint.y;
+    x += originPoint.x + position.offsetX;
+    y += originPoint.y + position.offsetY;
     return { x, y };
   }
 
@@ -175,8 +202,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     position: ConnectionPositionPair
   ): OverlayFit {
     let { x, y } = point;
-    x += position.offsetX;
-    y += position.offsetY;
+
     // How much the overlay would overflow at this position, on each side.
     let leftOverflow = 0 - x;
     let rightOverflow = x + overlay.width - window.innerWidth;
@@ -204,14 +230,81 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
   }
 
   /**
-   * Applies a computed position to the overlay and emits a position change.
-   * @param position The position preference
-   * @param originPoint The point on the origin element where the overlay is connected.
+   * Whether the overlay can fit within the viewport when it may move coordinate horizontally or vertically.
+   * @param fit How well the overlay fits in the viewport at some position.
+   * @param point The (x, y) coordinates of the overlay at some position.
+   * @param overlay The Dimensions of the overlay.
    */
-  #applyPosition(position: ConnectionPositionPair, originPoint: Point) {
-    // TODO: 
+  #canFitWithFlexibleCoordinate(fit: OverlayFit, overlayPoint: Point, overlayRect: Dimensions) {
+    if (this.#horizontalFlexible || this.#verticalFlexible) {
+      let horizontalFit = fit.fitsInViewportHorizontally;
+      let verticalFit = fit.fitsInViewportVertically;
+      if (!horizontalFit && !verticalFit) {
+        return false;
+      }
+      if (!horizontalFit && this.#horizontalFlexible) {
+        horizontalFit = overlayRect.height <= window.innerHeight;
+      }
+      if (!verticalFit && this.#verticalFlexible) {
+        verticalFit = overlayRect.width <= window.innerWidth;
+      }
+      return verticalFit && horizontalFit;
+    }
+    return false;
   }
 
+  /**
+   * Gets the (x, y) coordinates of the overlay which is completely within the viewport.
+   * @param fit How well the overlay fits in the viewport at some position.
+   * @param point The (x, y) coordinates of the overlay at some position.
+   * @param overlay The Dimensions of the overlay.
+   */
+  #getOverlayFlexiblePoint(fit: OverlayFit, overlayPoint: Point, overlayRect: Dimensions): Point {
+    let { x, y } = overlayPoint;
+    const viewprotRect = this.#getViewportRect();
+    if (!fit.fitsInViewportHorizontally) {
+      if (x < viewprotRect.left) {
+        x = viewprotRect.left;
+      }
+      if (x + overlayRect.width > viewprotRect.right) {
+        x = viewprotRect.right - overlayRect.width;
+      }
+    }
+    if (!fit.fitsInViewportVertically) {
+      if (y < viewprotRect.top) {
+        y = viewprotRect.top;
+      }
+      if (y + overlayRect.height > viewprotRect.bottom) {
+        y = viewprotRect.bottom - overlayRect.height;
+      }
+    }
+    return { x, y };
+  }
+
+  /**
+   * Applies a computed position to the overlay.
+   * @param position The position preference
+   * @param overlayPoint The overlay element start point.
+   */
+  #applyPosition(position: ConnectionPositionPair, overlayPoint: Point) {
+    const overlayElement = this.#overlayElement;
+    if (overlayElement) {
+      let { x, y } = overlayPoint;
+      overlayElement.style.left = `${x}px`;
+      overlayElement.style.top = `${y}px`;
+    }
+  }
+
+  #getViewportRect(): Dimensions {
+    return {
+      width: window.innerWidth,
+      height: window.innerHeight,
+      top: 0,
+      right: window.innerWidth,
+      bottom: window.innerHeight,
+      left: 0,
+    }
+  }
 }
 
 function isRefObject(ref: any): ref is React.RefObject<HTMLElement> {
