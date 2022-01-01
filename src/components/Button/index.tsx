@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import classNames from 'classnames';
 
 import './style.less';
@@ -10,20 +11,25 @@ export interface ButtonProps {
   type?: 'primary' | 'default' | 'text';
   size?: 'mini' | 'small' | 'default' | 'large';
   style?: React.CSSProperties;
-  ref?: React.RefObject<HTMLButtonElement>;
 }
 
-export default function Button({ className, onClick, children, type = 'default',
-  size = 'default', disabled, ...restProps }: ButtonProps) {
+function Button(
+  { className, onClick, children, type = 'default',
+  size = 'default', disabled, ...restProps }: ButtonProps, 
+  ref: React.Ref<HTMLButtonElement>
+) {
   return (
     <button
       className={classNames('button', `button--${type}`, `button-size--${size}`, className, {
         'button--disabled': disabled,
       })}
-      onClick={onClick} 
+      onClick={onClick}
+      ref={ref}
       {...restProps}
     >
       {children}
     </button>
   );
 }
+
+export default forwardRef(Button);

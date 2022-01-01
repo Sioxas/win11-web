@@ -1,5 +1,6 @@
-import React, { ComponentClass, FunctionComponent } from "react";
-import { Observable, Subject } from "rxjs";
+import React from "react";
+import { Observable, Subject, Subscription } from "rxjs";
+import classNames from "classnames";
 
 import { ObservableRef } from "@/utils/ObservableRef";
 import Overlay from "./Overlay";
@@ -26,25 +27,30 @@ export default class OverlayController {
   /** Overlay Service */
   #overlay = Overlay.getInstance();
 
+  #applySubscrption?: Subscription;
+
   constructor(
     public config: OverlayConfig
-  ) {
+  ) { }
 
-  }
-
-  attach<P extends { ref: React.RefObject<HTMLElement> }>(
-    component: FunctionComponent<P> | ComponentClass<P>, 
-    props?: Omit<P, 'ref'>
-  ) {
+  attach(node: React.ReactNode) {
     if (this.attached) {
       throw new Error("Overlay is already attached.");
     }
 
-    this.node = React.createElement(component, { ...props, ref: this.overlayRef } as unknown as P);
+    this.node = React.createElement(
+      'div', 
+      { ref: this.overlayRef, className: classNames(this.config.panelClass) },
+      node
+    );
 
     this.#overlay.append(this);
 
     this.config.positionStrategy?.attach(this);
+
+    this.#applySubscrption = this.overlayRef.observable.subscribe(() => {
+      this.config.positionStrategy?.apply();
+    });
 
     this.attached = true;
 
@@ -54,5 +60,6 @@ export default class OverlayController {
   detach() {
     this.#overlay.remove(this);
     this.attached = false;
+    this.#applySubscrption?.unsubscribe();
   }
 }

@@ -14,7 +14,7 @@ export default function OverlayContainer() {
   for (const controller of overlays) {
     if (controller.config.hasBackdrop) {
       nodes.push(
-        <div className={classNames(controller.config.backdropClass)} onClick={(event) => {
+        <div style={{ zIndex: 1000 }} className={classNames(controller.config.backdropClass)} onClick={(event) => {
           event.stopPropagation();
           controller._backdropClick.next(event.nativeEvent);
         }} />
@@ -23,5 +23,7 @@ export default function OverlayContainer() {
     nodes.push(controller.node);
   }
 
-  return nodes;
+  return <>
+    {nodes}
+  </>;
 }

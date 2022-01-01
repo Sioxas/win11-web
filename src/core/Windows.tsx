@@ -9,6 +9,7 @@ import { ContextMenuContainer } from './ContextMenu';
 import TaskBar from './TaskBar/TaskBar';
 import { WindowType } from './enums';
 import { menus } from './ContextMenu/test';
+import OverlayContainer from './Overlay/OverlayContainer';
 
 import './Windows.less';
 
@@ -67,6 +68,7 @@ export default function Windows() {
         <TaskBar />
       </div>
       <ContextMenuContainer />
+      <OverlayContainer />
     </>
   );
 }

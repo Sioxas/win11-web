@@ -290,6 +290,8 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     const overlayElement = this.#overlayElement;
     if (overlayElement) {
       let { x, y } = overlayPoint;
+      overlayElement.style.position = 'absolute';
+      overlayElement.style.zIndex = '1000';
       overlayElement.style.left = `${x}px`;
       overlayElement.style.top = `${y}px`;
     }

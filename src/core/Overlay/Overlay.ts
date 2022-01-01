@@ -6,6 +6,8 @@ import { OverlayConfig } from "./OverlayConfig";
 import OverlayController from "./OverlayController";
 import { OverlayPositionBuilder } from "./OverlayPositionBuilder";
 
+import './style.less';
+
 export default class Overlay extends Service {
 
   overlays$ = new BehaviorSubject<OverlayController[]>([]);
