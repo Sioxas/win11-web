@@ -12,5 +12,5 @@ export interface ContextMenuItem {
   checked?: boolean;
   disabled?: boolean;
   children?: ContextMenuItem[];
-  onSelect?: (path: ContextMenuItem[]) => void;
+  onSelect?: (option: ContextMenuItem) => void;
 }

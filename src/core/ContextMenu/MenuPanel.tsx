@@ -5,17 +5,27 @@ import MenuPanelController from "./MenuPanelController";
 
 interface ContextMenuProps {
   panel: MenuPanelController;
-  path: ContextMenuItem[];
 }
 
-export default function MenuPanel({ panel, path }: ContextMenuProps) {
+export default function MenuPanel({ panel }: ContextMenuProps) {
 
-  const { x, y, width, options, hasCheckbox, hasIcon } = panel;
+  const { options } = panel;
 
-  const [left, top] = [x, y].map(v => v + "px");
+  let hasCheckbox = false, hasIcon = false;
+
+  for (const option of options) {
+    if (option.type === ContextMenuType.Separator)
+      continue;
+    if (option.checked)
+      hasCheckbox = true;
+    if (option.icon)
+      hasIcon = true;
+    if (hasCheckbox && hasIcon)
+      break;
+  }
 
   return (
-    <ul className="context-menu" style={{ left, top, width: `${width}px` }}>
+    <ul className="context-menu">
       {options.map((option, index) => {
 
         const { type, text, icon, shortcut, checked, disabled, children } = option;
@@ -37,13 +47,15 @@ export default function MenuPanel({ panel, path }: ContextMenuProps) {
           default:
             return (
               <li key={`item-${index}`}
-                onPointerEnter={(event) => panel.onPointerEnter(event, [...path, option])}
+                onPointerEnter={(event) => panel.onPointerEnter(event, option)}
                 className={classNames('context-menu-item', {
                   'context-menu-item-disabled': disabled,
                 })}
                 onClick={() => {
-                  if(!option.disabled)
-                    option.onSelect?.(path);
+                  if(!option.disabled){
+                    option.onSelect?.(option);
+                    
+                  }
                 }}
               >
                 {hasCheckbox && <span className="context-menu-item-checkmark">{checked ? '√' : ''}</span>}

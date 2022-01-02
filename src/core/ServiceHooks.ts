@@ -21,6 +21,6 @@ export const useTaskBarService = serviceHooksFactory(new TaskBarService(WindowSe
 
 // export const useCanvasService = serviceHooksFactory(new CanvasService());
 
-export const useContextMenuService = serviceHooksFactory(new ContextMenuService());
-
 export const useOverlay = serviceHooksFactory(new Overlay());
+
+export const useContextMenuService = serviceHooksFactory(new ContextMenuService(Overlay.getInstance()));

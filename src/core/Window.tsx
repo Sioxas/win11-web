@@ -7,6 +7,7 @@ import { WindowResizeType, WindowResizer, WindowControlButton, WindowType } from
 import Application from './Application';
 import { useContextMenuService } from './ServiceHooks';
 import { ContextMenuItem, ContextMenuType } from './ContextMenu';
+import Point from '@/utils/Point';
 
 import './Window.less';
 
@@ -125,7 +126,7 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
                 onContextMenu={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  contextMenuService.show(e.clientX, e.clientY, titleBarContextMenu);
+                  contextMenuService.show(new Point(e.clientX, e.clientY), titleBarContextMenu);
                 }}
               >
                 <div className="window-title-bar-icon" draggable="false">

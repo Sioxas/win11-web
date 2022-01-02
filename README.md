@@ -10,6 +10,7 @@ WIP
 - Desktop
 - ~~TaskBar~~
 - StartMenu
+- Overlay
 - ~~ContextMenu~~
 - FileSystem
 
