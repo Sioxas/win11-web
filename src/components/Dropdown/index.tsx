@@ -1,34 +1,23 @@
 import { useRef } from 'react';
 
-import { ConnectionPositionPair } from '@/core/Overlay/PositioinStrategy';
-import { useOverlay } from '@/core/ServiceHooks';
-import Button, {ButtonProps} from '../Button';
+import { ContextMenuItem } from '@/core/ContextMenu';
+import { useContextMenuService } from '@/core/ServiceHooks';
+import Button, { ButtonProps } from '../Button';
 
 import './style.less';
 
 interface DropdownButtonProps extends Omit<ButtonProps, 'ref'> {
-
+  menus: ContextMenuItem[];
 }
 
-function DropdownButton ({ ...rest }: DropdownButtonProps){
+function DropdownButton({ menus, ...rest }: DropdownButtonProps) {
 
   const ref = useRef<HTMLButtonElement>(null);
 
-  const overlay = useOverlay();
+  const contextMenu = useContextMenuService();
 
-  function onClick(){
-    const positionStrategy = overlay.position()
-      .flexibleConnectedTo(ref.current!)
-      .withPositions([
-        new ConnectionPositionPair({ originX: 'start', originY: 'bottom' }, { overlayX: 'start', overlayY: 'top' }),
-        new ConnectionPositionPair({ originX: 'end', originY: 'bottom' }, { overlayX: 'end', overlayY: 'top' }),
-        new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'start', overlayY: 'bottom' }),
-        new ConnectionPositionPair({ originX: 'end', originY: 'top' }, { overlayX: 'end', overlayY: 'bottom' }),
-      ])
-      .withHorizontalFlexible();
-    const dropdown = overlay.create({ positionStrategy, hasBackdrop: true, panelClass: 'dropdown-panel' });
-    dropdown.attach(<div>Hello 哈哈哈哈哈 新年快乐 啦啦啦啦啦啦啦啦</div>);
-    dropdown.backdropClick$.subscribe(() => dropdown.detach());
+  function onClick() {
+    contextMenu.dropdown(ref, menus);
   }
 
   return <Button ref={ref} onClick={onClick} {...rest} />
