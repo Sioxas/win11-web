@@ -5,8 +5,8 @@ import classNames from 'classnames';
 import { WindowController } from './WindowController';
 import { WindowResizeType, WindowResizer, WindowControlButton, WindowType } from './enums';
 import Application from './Application';
-import { useContextMenuService } from './ServiceHooks';
-import { ContextMenuItem, ContextMenuType } from './ContextMenu';
+import { useService } from '../utils/useService';
+import { ContextMenuItem, ContextMenuService, ContextMenuType } from './ContextMenu';
 import Point from '@/utils/Point';
 
 import './Window.less';
@@ -24,7 +24,7 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
 
   const windowRef = useRef<HTMLDivElement>(null);
 
-  const contextMenuService = useContextMenuService();
+  const contextMenuService = useService(ContextMenuService);
 
   useEffect(() => {
     const windowElement = windowRef.current;

@@ -1,18 +1,18 @@
 import React from "react";
+import { Service } from "typedi";
 
 import Point from "@/utils/Point";
-import Service from "../Service";
 import { ContextMenuItem } from "./interface";
 import MenuPanelController from "./MenuPanelController";
 import Overlay from "../Overlay/Overlay";
 import { ConnectionPositionPair, PositionStrategy } from "../Overlay/PositioinStrategy";
 import MenuPanel from "./MenuPanel";
 
-export default class ContextMenuService extends Service {
+@Service()
+export default class ContextMenuService {
   #menuPanelController?: MenuPanelController;
 
   constructor(private overlay: Overlay) {
-    super();
     document.body.addEventListener('contextmenu', (e) => {
       e.preventDefault();
     });
@@ -37,8 +37,7 @@ export default class ContextMenuService extends Service {
         new ConnectionPositionPair({ originX: 'end', originY: 'bottom' }, { overlayX: 'end', overlayY: 'top' }),
         new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'start', overlayY: 'bottom' }),
         new ConnectionPositionPair({ originX: 'end', originY: 'top' }, { overlayX: 'end', overlayY: 'bottom' }),
-      ])
-      .withHorizontalFlexible();
+      ]);
     this.#apply(positionStrategy, options);
   }
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { Observable, Subject, Subscription } from "rxjs";
 import classNames from "classnames";
+import Container from "typedi";
 
 import { ObservableRef } from "@/utils/ObservableRef";
 import Overlay from "./Overlay";
@@ -25,7 +26,7 @@ export default class OverlayController {
   _backdropClick = new Subject<MouseEvent>();
 
   /** Overlay Service */
-  #overlay = Overlay.getInstance();
+  #overlay = Container.get(Overlay);
 
   #applySubscrption?: Subscription;
 

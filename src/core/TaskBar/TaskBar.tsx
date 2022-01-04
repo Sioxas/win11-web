@@ -1,15 +1,17 @@
 import { useObservableState } from 'observable-hooks';
 import classNames from 'classnames';
 
-import { useTaskBarService, useWindowService } from '@/core/ServiceHooks';
+import { useService } from '@/utils/useService';
+import WindowService from '../WindowService';
+import TaskBarService from './TaskBarService';
 
 import './TaskBar.less';
 
 export default function TaskBar() {
 
-  const windowService = useWindowService();
+  const windowService = useService(WindowService);
 
-  const taskBarService = useTaskBarService();
+  const taskBarService = useService(TaskBarService);
 
   const buttons = useObservableState(taskBarService.buttons$, []);
 

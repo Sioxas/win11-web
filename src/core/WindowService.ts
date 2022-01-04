@@ -1,6 +1,7 @@
 import React from "react";
 import { BehaviorSubject } from "rxjs";
 import { omitBy, isNil } from "lodash-es";
+import { Service } from 'typedi';
 
 import MouseShakeDetector from "@/utils/MouseShakeDetector";
 import RelativePosition from "@/utils/RelativePosition";
@@ -9,7 +10,6 @@ import LRU from "@/utils/LRUCache";
 import Application from "./Application";
 import { WindowController } from "./WindowController";
 import { WindowType, WindowLevel, WindowResizeType, WindowControlButton, WindowPosition } from './enums';
-import Service from "./Service";
 
 interface WindowTitleBar {
   title: string;
@@ -56,7 +56,8 @@ export interface WindowViewConfig<T extends Application = Application, P = any> 
   props?: P;
 }
 
-export default class WindowService extends Service {
+@Service()
+export default class WindowService {
 
   #windows = new Map<WindowController<Application>, WindowViewConfig>();
 
@@ -89,7 +90,6 @@ export default class WindowService extends Service {
   mouseShakeDetector = new MouseShakeDetector();
 
   constructor() {
-    super();
     document.body.addEventListener('pointermove', (event) => {
       this.activeWindow?.onDragMove(event);
     });

@@ -1,12 +1,13 @@
 import { BehaviorSubject } from "rxjs";
+import { Service } from 'typedi';
 
 import Application from "./Application";
-import Service from "./Service";
 import WindowService from "./WindowService";
 import { LAUNCH_ON_STARTUP } from "../applications";
 import { Constructor } from "@/utils/interface";
 
-export default class ApplicationService extends Service {
+@Service()
+export default class ApplicationService {
 
   #apps = new Map<Constructor<Application>, Application>();
 
@@ -17,7 +18,6 @@ export default class ApplicationService extends Service {
   }
 
   constructor(private windowService: WindowService) {
-    super();
     this.#apps$ = new BehaviorSubject(Array.from(this.#apps.entries()));
   }
 

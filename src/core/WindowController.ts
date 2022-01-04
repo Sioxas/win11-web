@@ -1,4 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
+import { Container } from 'typedi';
 
 import RelativePosition from '@/utils/RelativePosition';
 import Point from '@/utils/Point';
@@ -8,7 +9,6 @@ import { WindowResizer, WindowLevel, WindowResizeType, WindowType, WindowPositio
 import { WindowOptions } from './WindowService';
 import Application from './Application';
 import TaskBarService from './TaskBar/TaskBarService';
-
 
 export class WindowController<T extends Application> {
   static windowId = 0;
@@ -62,9 +62,9 @@ export class WindowController<T extends Application> {
     return this.#zIndex;
   }
 
-  private windowService = WindowService.getInstance();
+  private windowService = Container.get(WindowService);
 
-  private taskBarService = TaskBarService.getInstance();
+  private taskBarService = Container.get(TaskBarService);
 
   constructor(
     public options: Required<WindowOptions>,

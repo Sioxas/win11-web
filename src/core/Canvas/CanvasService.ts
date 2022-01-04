@@ -1,12 +1,9 @@
-import Service from "../Service";
-
 import './style.less';
 
-export default class CanvasService extends Service {
+export default class CanvasService {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   constructor() {
-    super();
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d')!;
     this.canvas.classList.add('fullscreen-canvas');

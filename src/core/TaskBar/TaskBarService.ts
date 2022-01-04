@@ -1,12 +1,13 @@
 import { createRef, RefObject } from "react";
 import { BehaviorSubject, combineLatest, map } from "rxjs";
+import { Observed } from 'rxjs-observed-decorator';
 import { uniq } from "lodash-es";
+import { Service } from 'typedi';
 
 import { PIN_TO_TASKBAR } from "@/applications";
 import { Constructor } from "@/utils/interface";
 import ApplicationService from "../ApplicationService";
 import WindowService from "../WindowService";
-import Service from "../Service";
 import Application from "../Application";
 import { WindowType } from "../enums";
 
@@ -17,21 +18,16 @@ export interface TaskBarButton {
   ref: RefObject<HTMLButtonElement>;
 }
 
-export default class TaskBarService extends Service {
+@Service()
+export default class TaskBarService {
 
-  #buttons$ = new BehaviorSubject<TaskBarButton[]>([]);
-  get buttons$() {
-    return this.#buttons$.asObservable();
-  }
-  get #buttons() {
-    return this.#buttons$.value;
-  }
+  @Observed() buttons: TaskBarButton[] = [];
+  readonly buttons$!: BehaviorSubject<TaskBarButton[]>;
 
   constructor(
     private windowService: WindowService,
     private appService: ApplicationService
   ) {
-    super();
     combineLatest([windowService.activeWindow$, windowService.windows$]).pipe(
       map(([activeWindow, windows]) => {
         const apps = uniq(
@@ -62,11 +58,11 @@ export default class TaskBarService extends Service {
         }
         return buttons;
       })
-    ).subscribe(this.#buttons$);
+    ).subscribe(this.buttons$);
   }
 
   getButtonByApp(App: typeof Application) {
-    return this.#buttons.find(button => button.App === App);
+    return this.buttons.find(button => button.App === App);
   }
 
   getButtonRectByApp(App: typeof Application) {

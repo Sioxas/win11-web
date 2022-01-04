@@ -1,3 +1,5 @@
+import { Container } from "typedi";
+
 import { WindowController } from "@/core/WindowController";
 import WindowService, { WindowOptions, WindowViewProps } from "@/core/WindowService";
 import { Constructor } from "@/utils/interface";
@@ -17,8 +19,8 @@ export default abstract class Application {
 
   runInBackground = false;
 
-  private windowService = WindowService.getInstance();
-  private appService = ApplicationService.getInstance();
+  private windowService = Container.get(WindowService);
+  private appService = Container.get(ApplicationService);
 
   protected createWindow<P>(
     options: WindowOptions,
