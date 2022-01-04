@@ -1,14 +1,15 @@
 import React from "react";
 
+import Point from "@/utils/Point";
 import Service from "../Service";
 import { ContextMenuItem } from "./interface";
 import MenuPanelController from "./MenuPanelController";
 import Overlay from "../Overlay/Overlay";
 import { ConnectionPositionPair, PositionStrategy } from "../Overlay/PositioinStrategy";
 import MenuPanel from "./MenuPanel";
-import Point from "@/utils/Point";
 
 export default class ContextMenuService extends Service {
+  #menuPanelController?: MenuPanelController;
 
   constructor(private overlay: Overlay) {
     super();
@@ -41,20 +42,25 @@ export default class ContextMenuService extends Service {
     this.#apply(positionStrategy, options);
   }
 
+  dispose() {
+    this.#menuPanelController?.dispose();
+    this.#menuPanelController = undefined;
+  }
+
   #apply(positionStrategy: PositionStrategy, options: ContextMenuItem[]) {
     const menuOverlay = this.overlay.create({
       positionStrategy,
       hasBackdrop: true,
       panelClass: 'dropdown-panel'
     });
-    const menuPanelController = new MenuPanelController(options, menuOverlay);
-    const subscription = menuOverlay.backdropClick$.subscribe(() => {
-      menuPanelController.dispose();
-      subscription.unsubscribe();
-    });
+    this.#menuPanelController = new MenuPanelController(options, menuOverlay);
     const menuElement = React.createElement(MenuPanel, {
-      panel: menuPanelController
+      panel: this.#menuPanelController
     });
     menuOverlay.attach(menuElement);
+    const subscription = menuOverlay.backdropClick$.subscribe(() => {
+      this.dispose();
+      subscription.unsubscribe();
+    });
   }
 }

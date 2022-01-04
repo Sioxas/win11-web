@@ -1,6 +1,6 @@
 import classNames from "classnames";
 
-import { ContextMenuItem, ContextMenuType } from "./interface";
+import { ContextMenuType } from "./interface";
 import MenuPanelController from "./MenuPanelController";
 
 interface ContextMenuProps {
@@ -30,6 +30,8 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
 
         const { type, text, icon, shortcut, checked, disabled, children } = option;
 
+        const hasChildren = children && children.length > 0;
+
         switch (type) {
           case ContextMenuType.Separator:
             return <li key={`separator-${index}`} className="context-menu-separator">
@@ -52,9 +54,8 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
                   'context-menu-item-disabled': disabled,
                 })}
                 onClick={() => {
-                  if(!option.disabled){
-                    option.onSelect?.(option);
-                    
+                  if(!option.disabled && hasChildren){
+                    panel.onSelect(option);                 
                   }
                 }}
               >
@@ -66,7 +67,7 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
                   {text}
                 </div>
                 {shortcut && <div className="context-menu-item-shortcut">{shortcut}</div>}
-                {children && children.length > 0 && <div className="context-menu-item-children-mark">
+                {hasChildren && <div className="context-menu-item-children-mark">
                   <i className="iconfont icon-right"></i>
                 </div>}
               </li>

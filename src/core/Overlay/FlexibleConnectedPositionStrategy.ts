@@ -32,10 +32,19 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     return this.#container;
   }
 
+  /** Ordered list of preferred positions, from most to least desirable. */
   #preferredPositions: ConnectionPositionPair[] = [];
 
+  /** 
+   * When the space in the vertical direction is insufficient, 
+   * whether the coordinates in the vertical direction can be adjusted 
+   */
   #verticalFlexible: boolean = false;
 
+  /** 
+   * When the space in the horizontal direction is insufficient, 
+   * whether the coordinates in the horizontal direction can be adjusted 
+   */
   #horizontalFlexible: boolean = false;
 
   constructor(connectedTo: FlexibleConnectedPositionStrategyOrigin) {
@@ -54,14 +63,18 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     return this;
   }
 
+  /** Attaches this position strategy to an overlay. */
   attach(controller: OverlayController): void {
     this.#overlayRef = controller.overlayRef;
   }
 
   detach(): void {
-    throw new Error("Method not implemented.");
+    // throw new Error("Method not implemented.");
   }
 
+  /**
+   * Apply the position to the element.
+   */
   apply(): void {
     if (!this.#origin || !this.#overlayElement) {
       throw new Error("Origin and overlay must be set before calling apply.");
@@ -101,12 +114,16 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     // All options for getting the overlay within the viewport have been exhausted, so go with the
     // position that went off-screen the least.
     this.#applyPosition(fallback!.position, fallback!.originPoint);
-
   }
+
   dispose(): void {
-    throw new Error("Method not implemented.");
+    // throw new Error("Method not implemented.");
   }
 
+  /**
+   * Adds new preferred positions.
+   * @param positions List of positions options for this overlay.
+   */
   withPositions(positions: ConnectionPositionPair[]): this {
     this.#preferredPositions = positions;
     return this;

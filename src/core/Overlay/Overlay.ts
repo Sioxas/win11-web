@@ -1,4 +1,3 @@
-import React from "react";
 import { BehaviorSubject } from "rxjs";
 
 import Service from "../Service";

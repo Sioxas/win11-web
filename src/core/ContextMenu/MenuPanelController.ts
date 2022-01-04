@@ -7,11 +7,14 @@ import OverlayController from "../Overlay/OverlayController";
 import { ConnectionPositionPair } from "../Overlay/PositioinStrategy";
 import MenuPanel from "./MenuPanel";
 import { ContextMenuItem } from "./interface";
+import { ContextMenuService } from ".";
 
 
 export default class MenuPanelController {
 
-  private overlay = Overlay.getInstance();
+  #overlay = Overlay.getInstance();
+
+  #contextMenu = ContextMenuService.getInstance();
 
   #childMenuPanel?: MenuPanelController;
 
@@ -23,6 +26,10 @@ export default class MenuPanelController {
     private parent?: MenuPanelController
   ) { }
 
+  /**
+   * When the mouse enters the element of ContextMenuItem, determine if the submenu is 
+   * displayed according to the mouse position.
+   */
   onPointerEnter(event: React.PointerEvent<HTMLLIElement>, menuItem: ContextMenuItem) {
     if (this.#childMenuPanel) {
       if (!this.#shouldChangeChildPanel(event)) {
@@ -39,7 +46,8 @@ export default class MenuPanelController {
   }
 
   onSelect(option: ContextMenuItem) {
-    // FIXME: 选择后销毁菜单
+    option.onSelect?.(option);
+    this.#contextMenu.dispose();
   }
 
   dispose() {
@@ -50,6 +58,9 @@ export default class MenuPanelController {
   #p0: Point = { x: 0, y: 0 };
   #p1: Point = { x: 0, y: 0 };
 
+  /**
+   * Judging whether the mouse is in the quadrangular area composed of the submenu triggered by the options and options.
+   */
   #shouldChangeChildPanel(event: React.PointerEvent<HTMLLIElement>) {
     if (this.#childMenuPanel) {
       const childElement = this.#childMenuPanel.overlayController.overlayRef.current;
@@ -65,6 +76,9 @@ export default class MenuPanelController {
     return true;
   }
 
+  /**
+   * Attach MenuPanel overlay.
+   */
   #showChildPanel(event: React.PointerEvent<HTMLLIElement>, menuItem: ContextMenuItem) {
     const element = (event.target as HTMLElement).closest('.context-menu-item');
     if (!element) {
@@ -75,7 +89,7 @@ export default class MenuPanelController {
     this.#p0 = { x: event.clientX, y: rect.top };
     this.#p1 = { x: event.clientX, y: rect.bottom };
 
-    const positionStrategy = this.overlay.position()
+    const positionStrategy = this.#overlay.position()
       .flexibleConnectedTo(element as HTMLElement)
       .withPositions([
         new ConnectionPositionPair({ originX: 'end', originY: 'top' }, { overlayX: 'start', overlayY: 'top' }),
@@ -83,7 +97,7 @@ export default class MenuPanelController {
       ])
       .withVerticalFlexible();
 
-    const menuOverlay = this.overlay.create({ positionStrategy, panelClass: 'dropdown-panel' });
+    const menuOverlay = this.#overlay.create({ positionStrategy, panelClass: 'dropdown-panel' });
 
     this.#childMenuPanel = new MenuPanelController(menuItem.children!, menuOverlay, this);
 

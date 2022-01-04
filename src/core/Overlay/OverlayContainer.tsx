@@ -2,7 +2,6 @@ import classNames from "classnames";
 import { useObservableState } from "observable-hooks";
 
 import { useOverlay } from "../ServiceHooks";
-import OverlayController from "./OverlayController";
 
 export default function OverlayContainer() {
   const overlay = useOverlay();
