@@ -14,10 +14,14 @@ export default function OverlayContainer() {
   for (const controller of overlays) {
     if (controller.config.hasBackdrop) {
       nodes.push(
-        <div style={{ zIndex: 1000 }} className={classNames(controller.config.backdropClass)} onClick={(event) => {
-          event.stopPropagation();
-          controller._backdropClick.next(event.nativeEvent);
-        }} />
+        <div 
+          style={{ zIndex: 1000 }} 
+          className={classNames(controller.config.backdropClass)} 
+          onClick={(event) => {
+            event.stopPropagation();
+            controller._backdropClick.next(event.nativeEvent);
+          }} 
+        />
       );
     }
     nodes.push(controller.node);

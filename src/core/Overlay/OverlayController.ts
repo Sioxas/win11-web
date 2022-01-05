@@ -6,6 +6,7 @@ import Container from "typedi";
 import { ObservableRef } from "@/utils/ObservableRef";
 import Overlay from "./Overlay";
 import { OverlayConfig } from "./OverlayConfig";
+import { FlexibleConnectedPositionStrategy, FlexibleConnectedPositionStrategyOrigin } from "./FlexibleConnectedPositionStrategy";
 
 export default class OverlayController {
 
@@ -64,5 +65,12 @@ export default class OverlayController {
     this.#overlay.remove(this);
     this.attached = false;
     this.#applySubscrption?.unsubscribe();
+  }
+
+  updatePosition(origin?: FlexibleConnectedPositionStrategyOrigin){
+    if(origin && this.config.positionStrategy instanceof FlexibleConnectedPositionStrategy){
+      this.config.positionStrategy.setOrigin(origin);
+    }
+    this.config.positionStrategy?.apply();
   }
 }

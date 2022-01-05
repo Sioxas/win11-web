@@ -20,8 +20,7 @@ export default class Overlay {
 
   create(config?: OverlayConfig){
     const overlayConfig = new OverlayConfig(config);
-    const overlay = new OverlayController(overlayConfig);
-    return overlay;
+    return new OverlayController(overlayConfig);
   }
 
   append(overlay: OverlayController){
