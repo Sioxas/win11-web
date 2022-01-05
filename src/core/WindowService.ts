@@ -63,15 +63,12 @@ export default class WindowService {
 
   #recentlyUsedWindows = new LRU<WindowController<Application>, null>(Infinity);
 
-  #activeWindow$ = new BehaviorSubject<WindowController<Application> | null>(null);
-  get activeWindow$() {
-    return this.#activeWindow$.asObservable();
-  }
+  activeWindow$ = new BehaviorSubject<WindowController<Application> | null>(null);
   get activeWindow() {
-    return this.#activeWindow$.value;
+    return this.activeWindow$.value;
   }
   set activeWindow(windowController: WindowController<Application> | null) {
-    this.#activeWindow$.next(windowController);
+    this.activeWindow$.next(windowController);
     if (windowController) {
       this.#recentlyUsedWindows.set(windowController, null);
     }
@@ -79,10 +76,8 @@ export default class WindowService {
 
   windowContainer?: HTMLDivElement;
 
-  #windows$ = new BehaviorSubject<[WindowController<Application>, WindowViewConfig][]>([]);
-  get windows$() {
-    return this.#windows$.asObservable();
-  }
+  windows$ = new BehaviorSubject<[WindowController<Application>, WindowViewConfig][]>([]);
+
   get windows() {
     return Array.from(this.#windows.entries());
   }
@@ -130,7 +125,7 @@ export default class WindowService {
     }
     windowController.active = true;
     this.activeWindow = windowController;
-    this.#windows$.next(this.windows);
+    this.windows$.next(this.windows);
     return windowController;
   }
 
@@ -142,7 +137,7 @@ export default class WindowService {
     if(this.activeWindow) {
       this.activeWindow.active = true;
     }
-    this.#windows$.next(this.windows);
+    this.windows$.next(this.windows);
   }
 
   setWindowInactive(windowController: WindowController<Application>) {

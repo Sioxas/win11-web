@@ -13,6 +13,13 @@ export type FlexibleConnectedPositionStrategyOrigin =
     height?: number;
   });
 
+export const defaultPositions: ConnectionPositionPair[] = [
+  new ConnectionPositionPair({ originX: 'start', originY: 'bottom' }, { overlayX: 'start', overlayY: 'top' }),
+  new ConnectionPositionPair({ originX: 'end', originY: 'bottom' }, { overlayX: 'end', overlayY: 'top' }),
+  new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'start', overlayY: 'bottom' }),
+  new ConnectionPositionPair({ originX: 'end', originY: 'top' }, { overlayX: 'end', overlayY: 'bottom' }),
+];
+
 /** Equivalent of `ClientRect` without some of the properties we don't care about. */
 type Dimensions = Omit<ClientRect, 'x' | 'y' | 'toJSON'>;
 
@@ -33,7 +40,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
   }
 
   /** Ordered list of preferred positions, from most to least desirable. */
-  #preferredPositions: ConnectionPositionPair[] = [];
+  #preferredPositions: ConnectionPositionPair[] = defaultPositions;
 
   /** 
    * When the space in the vertical direction is insufficient, 
@@ -69,7 +76,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
   }
 
   detach(): void {
-    // throw new Error("Method not implemented.");
+    this.#overlayRef = undefined;
   }
 
   /**

@@ -63,6 +63,7 @@ export default class OverlayController {
 
   detach() {
     this.#overlay.remove(this);
+    this.config.positionStrategy?.detach?.();
     this.attached = false;
     this.#applySubscrption?.unsubscribe();
   }

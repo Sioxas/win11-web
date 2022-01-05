@@ -2,7 +2,6 @@ import { BehaviorSubject } from "rxjs";
 import { Service } from 'typedi';
 
 import Application from "./Application";
-import WindowService from "./WindowService";
 import { LAUNCH_ON_STARTUP } from "../applications";
 import { Constructor } from "@/utils/interface";
 
@@ -17,7 +16,7 @@ export default class ApplicationService {
     return this.#apps$.asObservable();
   }
 
-  constructor(private windowService: WindowService) {
+  constructor() {
     this.#apps$ = new BehaviorSubject(Array.from(this.#apps.entries()));
   }
 

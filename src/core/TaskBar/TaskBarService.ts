@@ -1,6 +1,5 @@
 import { createRef, RefObject } from "react";
 import { BehaviorSubject, combineLatest, map } from "rxjs";
-import { Observed } from 'rxjs-observed-decorator';
 import { uniq } from "lodash-es";
 import { Service } from 'typedi';
 
@@ -21,13 +20,22 @@ export interface TaskBarButton {
 @Service()
 export default class TaskBarService {
 
-  @Observed() buttons: TaskBarButton[] = [];
-  readonly buttons$!: BehaviorSubject<TaskBarButton[]>;
+  readonly buttons$ = new BehaviorSubject<TaskBarButton[]>([]);
+  get buttons() {
+    return this.buttons$.value;
+  }
+  set buttons(buttons: TaskBarButton[]) {
+    this.buttons$.next(buttons);
+  }
 
   constructor(
     private windowService: WindowService,
     private appService: ApplicationService
   ) {
+    console.log('windowService', windowService);
+    console.log('appService', appService);
+    console.log('activeWindow', windowService.activeWindow$);
+    console.log('windows', windowService.windows$);
     combineLatest([windowService.activeWindow$, windowService.windows$]).pipe(
       map(([activeWindow, windows]) => {
         const apps = uniq(
@@ -58,7 +66,9 @@ export default class TaskBarService {
         }
         return buttons;
       })
-    ).subscribe(this.buttons$);
+    ).subscribe((buttons) => {
+      this.buttons = buttons;
+    });
   }
 
   getButtonByApp(App: typeof Application) {
