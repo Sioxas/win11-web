@@ -1,18 +1,21 @@
 import { BehaviorSubject } from "rxjs";
-import { Service } from 'typedi';
 
+import Service from "@/utils/Service";
 import { OverlayConfig } from "./OverlayConfig";
 import OverlayController from "./OverlayController";
 import { OverlayPositionBuilder } from "./OverlayPositionBuilder";
 
 import './style.less';
 
-@Service()
-export default class Overlay {
+export default class Overlay extends Service {
 
   overlays$ = new BehaviorSubject<OverlayController[]>([]);
 
   #positionBuilder = new OverlayPositionBuilder();
+
+  constructor() {
+    super();
+  }
 
   position(){
     return this.#positionBuilder;

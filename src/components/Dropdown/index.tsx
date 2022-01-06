@@ -1,8 +1,8 @@
 import { useRef } from 'react';
 
-import { ContextMenuItem, ContextMenuService } from '@/core/ContextMenu';
-import { useService } from '@/utils/useService';
+import { ContextMenuItem } from '@/core/ContextMenu';
 import Button, { ButtonProps } from '../Button';
+import { useContextMenuService } from '@/core/ServiceHooks';
 
 import './style.less';
 
@@ -14,7 +14,7 @@ function DropdownButton({ menus, ...rest }: DropdownButtonProps) {
 
   const ref = useRef<HTMLButtonElement>(null);
 
-  const contextMenu = useService(ContextMenuService);
+  const contextMenu = useContextMenuService();
 
   function onClick() {
     contextMenu.dropdown(ref, menus);

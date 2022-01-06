@@ -1,6 +1,6 @@
 import React from "react";
-import { Service } from "typedi";
 
+import Service from "@/utils/Service";
 import Point from "@/utils/Point";
 import { ContextMenuItem } from "./interface";
 import MenuPanelController from "./MenuPanelController";
@@ -8,11 +8,11 @@ import Overlay from "../Overlay/Overlay";
 import { ConnectionPositionPair, PositionStrategy } from "../Overlay/PositioinStrategy";
 import MenuPanel from "./MenuPanel";
 
-@Service()
-export default class ContextMenuService {
+export default class ContextMenuService extends Service {
   #menuPanelController?: MenuPanelController;
 
   constructor(private overlay: Overlay) {
+    super();
     document.body.addEventListener('contextmenu', (e) => {
       e.preventDefault();
     });

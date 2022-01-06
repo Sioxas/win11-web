@@ -1,5 +1,4 @@
 import React from "react";
-import Container from "typedi";
 
 import Point from "@/utils/Point";
 import pointInTriangle from "@/utils/pointInTrangle";
@@ -13,9 +12,9 @@ import { ContextMenuService } from ".";
 
 export default class MenuPanelController {
 
-  #overlay = Container.get(Overlay);
+  #overlay = Overlay.getInstance();
 
-  #contextMenu = Container.get(ContextMenuService);
+  #contextMenu = ContextMenuService.getInstance();
 
   #childMenuPanel?: MenuPanelController;
 

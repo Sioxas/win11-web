@@ -1,7 +1,6 @@
 import { createRef, RefObject } from "react";
 import { BehaviorSubject, combineLatest, map } from "rxjs";
 import { uniq } from "lodash-es";
-import { Service } from 'typedi';
 
 import { PIN_TO_TASKBAR } from "@/applications";
 import { Constructor } from "@/utils/interface";
@@ -9,6 +8,7 @@ import ApplicationService from "../ApplicationService";
 import WindowService from "../WindowService";
 import Application from "../Application";
 import { WindowType } from "../enums";
+import Service from "@/utils/Service";
 
 export interface TaskBarButton {
   App: typeof Application;
@@ -17,8 +17,7 @@ export interface TaskBarButton {
   ref: RefObject<HTMLButtonElement>;
 }
 
-@Service()
-export default class TaskBarService {
+export default class TaskBarService extends Service {
 
   readonly buttons$ = new BehaviorSubject<TaskBarButton[]>([]);
   get buttons() {
@@ -32,10 +31,7 @@ export default class TaskBarService {
     private windowService: WindowService,
     private appService: ApplicationService
   ) {
-    console.log('windowService', windowService);
-    console.log('appService', appService);
-    console.log('activeWindow', windowService.activeWindow$);
-    console.log('windows', windowService.windows$);
+    super();
     combineLatest([windowService.activeWindow$, windowService.windows$]).pipe(
       map(([activeWindow, windows]) => {
         const apps = uniq(

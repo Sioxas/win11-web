@@ -1,13 +1,11 @@
-import { Service } from "typedi";
-
+import Service from "@/utils/Service";
 import Overlay from "../Overlay/Overlay";
 
 import './style.less';
 
-@Service()
-export default class TooltipService {
+export default class TooltipService extends Service {
   constructor(private overlay: Overlay) {
-
+    super();
     let moving = false; // 鼠标是否在移动
     let hoverTimer: number;
     // let vanishTimer: number;

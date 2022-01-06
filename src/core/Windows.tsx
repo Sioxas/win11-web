@@ -4,27 +4,24 @@ import { groupBy } from 'lodash-es';
 
 import Window from './Window';
 import Widget from './Widget';
-import { useService } from '../utils/useService';
 import TaskBar from './TaskBar/TaskBar';
 import { WindowType } from './enums';
 import { menus } from './ContextMenu/test';
 import OverlayContainer from './Overlay/OverlayContainer';
 import Point from '@/utils/Point';
-import ApplicationService from './ApplicationService';
-import WindowService from './WindowService';
-import { ContextMenuService } from './ContextMenu';
 
 import './Windows.less';
+import { useApplicationService, useContextMenuService, useWindowService } from './ServiceHooks';
 
 export default function Windows() {
 
   const windowContainerRef = useRef<HTMLDivElement>(null);
 
-  const appService = useService(ApplicationService);
+  const appService = useApplicationService();
 
-  const windowService = useService(WindowService);
+  const windowService = useWindowService();
 
-  const contextMenuService = useService(ContextMenuService);
+  const contextMenuService = useContextMenuService();
 
   const windows = useObservableState(windowService.windows$);
 
