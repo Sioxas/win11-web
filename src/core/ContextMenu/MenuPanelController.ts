@@ -97,7 +97,7 @@ export default class MenuPanelController {
       ])
       .withVerticalFlexible();
 
-    const menuOverlay = this.#overlay.create({ positionStrategy, panelClass: 'dropdown-panel' });
+    const menuOverlay = this.#overlay.create({ positionStrategy });
 
     this.#childMenuPanel = new MenuPanelController(menuItem.children!, menuOverlay, this);
 

@@ -12,7 +12,7 @@ export default class TooltipService extends Service {
     const positionStrategy = this.overlay.position().flexibleConnectedTo({ x: 0, y: 0 });
     const tooltip = overlay.create({
       positionStrategy,
-      panelClass: 'global-tooltip'
+      panelClass: 'overlay-panel global-tooltip',
     });
 
     function onPointerIdle(event: PointerEvent, path: HTMLElement[]) {

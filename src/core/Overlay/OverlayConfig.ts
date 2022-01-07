@@ -9,7 +9,7 @@ export class OverlayConfig {
   // scrollStrategy?: ScrollStrategy = new NoopScrollStrategy();
 
   /** Custom class to add to the overlay pane. */
-  panelClass?: string | string[] = '';
+  panelClass?: string | string[] = 'overlay-panel';
 
   /** Whether the overlay has a backdrop. */
   hasBackdrop?: boolean = false;

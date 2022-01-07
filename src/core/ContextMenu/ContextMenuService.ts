@@ -43,7 +43,6 @@ export default class ContextMenuService extends Service {
     const menuOverlay = this.overlay.create({
       positionStrategy,
       hasBackdrop: true,
-      panelClass: 'dropdown-panel'
     });
     this.#menuPanelController = new MenuPanelController(options, menuOverlay);
     const menuElement = React.createElement(MenuPanel, {
