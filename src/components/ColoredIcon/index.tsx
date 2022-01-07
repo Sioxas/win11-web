@@ -1,4 +1,3 @@
-
 import './style.less';
 
 export class ColoredIconGlyph {
@@ -26,7 +25,7 @@ interface ColoredIconProps {
   style?: React.CSSProperties;
 }
 
-export function ColoredIcon({ glyph, className, style }: ColoredIconProps) {
+export function ColoredIcon({ glyph, className = '', style }: ColoredIconProps) {
   return <div className={`colored-icon ${className}`} style={style}>
     <div className="colored-icon-base-layer">{glyph.baseLayerGlyph}</div>
     {glyph.overlayLayerGlyph && <div className="colored-icon-overlay-layer">{glyph.overlayLayerGlyph}</div>}

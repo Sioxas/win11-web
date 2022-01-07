@@ -92,8 +92,8 @@ export default class MenuPanelController {
     const positionStrategy = this.#overlay.position()
       .flexibleConnectedTo(element as HTMLElement)
       .withPositions([
-        new ConnectionPositionPair({ originX: 'end', originY: 'top' }, { overlayX: 'start', overlayY: 'top' }),
-        new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'end', overlayY: 'top' }),
+        new ConnectionPositionPair({ originX: 'end', originY: 'top' }, { overlayX: 'start', overlayY: 'top' }, 0, -4),
+        new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'end', overlayY: 'top' }, 0, -4),
       ])
       .withVerticalFlexible();
 

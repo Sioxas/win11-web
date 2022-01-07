@@ -40,24 +40,25 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
   });
 
   const resizers = [
-    controlButton & WindowControlButton.MINIMIZE && <div className={resizerClass}
+    controlButton & WindowControlButton.MINIMIZE && <div className={resizerClass} key='minimize'
       onClick={() => controller.minimize()}
     >
       <span className="iconfont icon-minimize" />
     </div>,
     controlButton & WindowControlButton.MAXIMIZE && <>
-      {resizeType === WindowResizeType.MAXIMIZED && <div className={resizerClass}
+      {resizeType === WindowResizeType.MAXIMIZED && <div className={resizerClass} key='restore'
         onClick={() => controller.normalize()}
       >
         <span className="iconfont icon-restore" />
       </div>}
-      {resizeType === WindowResizeType.NORMAL && <div className={resizerClass}
+      {resizeType === WindowResizeType.NORMAL && <div className={resizerClass} key="maximize"
         onClick={() => controller.maximize()}
       >
         <span className="iconfont icon-maximize" />
       </div>}
     </>,
-    controlButton & WindowControlButton.CLOSE && <div className={classNames(resizerClass, 'window-resizer-close')}
+    controlButton & WindowControlButton.CLOSE && <div className={classNames(resizerClass, 'window-resizer-close')} 
+      key='close'
       onClick={() => controller.close()}
     >
       <span className="iconfont icon-close" />

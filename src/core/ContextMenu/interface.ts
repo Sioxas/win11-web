@@ -1,3 +1,5 @@
+import { ColoredIconGlyph } from "@/components/ColoredIcon";
+
 export enum ContextMenuType {
   Menu,
   Separator,
@@ -7,7 +9,7 @@ export enum ContextMenuType {
 export interface ContextMenuItem {
   text?: string;
   type?: ContextMenuType;
-  icon?: string;
+  icon?: string | ColoredIconGlyph;
   shortcut?: string;
   checked?: boolean;
   disabled?: boolean;

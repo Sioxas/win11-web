@@ -19,6 +19,9 @@ export default class ContextMenuService extends Service {
   }
 
   show(point: Point, options: ContextMenuItem[]) {
+    if(!Array.isArray(options)) {
+      throw new Error('options must be array of ContextMenuItem');
+    }
     const positionStrategy = this.overlay.position()
       .flexibleConnectedTo(point)
       .withPositions([
@@ -30,6 +33,12 @@ export default class ContextMenuService extends Service {
   }
 
   dropdown(origin: HTMLElement | React.RefObject<HTMLElement>, options: ContextMenuItem[]) {
+    if(!(origin instanceof HTMLElement || origin.current instanceof HTMLElement)) {
+      throw new Error('origin must be HTMLElement or React.RefObject<HTMLElement>');
+    }
+    if(!Array.isArray(options)) {
+      throw new Error('options must be array of ContextMenuItem');
+    }
     const positionStrategy = this.overlay.position().flexibleConnectedTo(origin);
     this.#apply(positionStrategy, options);
   }

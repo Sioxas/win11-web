@@ -1,6 +1,7 @@
 import Button from '@/components/Button';
 import { ColoredIcon, ColoredIconGlyph } from '@/components/ColoredIcon';
 import Dropdown from '@/components/Dropdown';
+import { newMenu } from './config';
 
 import './style.less';
 
@@ -8,7 +9,7 @@ export default function ExplorerView() {
   return (
     <div className="explorer">
       <div className="explorer-toolbar">
-        <Dropdown.Button type='text' style={{ padding:'0 8px' }}>
+        <Dropdown.Button type='text' style={{ padding:'0 8px' }} menus={newMenu}>
           <ColoredIcon glyph={ColoredIconGlyph.New} style={{ fontSize:'18px', margin:'0 5px' }} />
           <span>新建</span>
           <i className='iconfont icon-down' style={{ fontSize:'12px', margin: '0 3px' }} />

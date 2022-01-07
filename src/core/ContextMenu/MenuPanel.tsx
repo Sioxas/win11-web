@@ -1,7 +1,10 @@
 import classNames from "classnames";
 
+import { ColoredIcon, ColoredIconGlyph } from "@/components/ColoredIcon";
 import { ContextMenuType } from "./interface";
 import MenuPanelController from "./MenuPanelController";
+
+import './style.less';
 
 interface ContextMenuProps {
   panel: MenuPanelController;
@@ -43,7 +46,7 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
           case ContextMenuType.QuickActions:
             return <li key={`quick-actions-${index}`} className="context-menu-item-quick-actions">
               {children?.map(child => <div className="context-menu-item-quick-action-icon">
-                {child.icon && <img src={child.icon} />}
+                {child.icon && <ConetxtMenuIcon icon={child.icon} />}
               </div>)}
             </li>;
           default:
@@ -54,14 +57,14 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
                   'context-menu-item-disabled': disabled,
                 })}
                 onClick={() => {
-                  if(!option.disabled && hasChildren){
+                  if(!option.disabled && !hasChildren){
                     panel.onSelect(option);                 
                   }
                 }}
               >
                 {hasCheckbox && <span className="context-menu-item-checkmark">{checked ? '√' : ''}</span>}
                 {hasIcon && <div className="context-menu-item-icon">
-                  {icon && (icon.startsWith('icon') ? <i className={`iconfont ${icon}`} /> : <img src={icon} />)}
+                  {icon && <ConetxtMenuIcon icon={icon} />}
                 </div>}
                 <div className="context-menu-item-title">
                   {text}
@@ -78,4 +81,11 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
   );
 }
 
-
+function ConetxtMenuIcon({ icon }: { icon: string | ColoredIconGlyph }) {
+  if (typeof icon === 'string') {
+    return icon.startsWith('icon') ? <i className={`iconfont ${icon}`} /> : <img src={icon} />;
+  } else if(icon instanceof ColoredIconGlyph){
+    return <ColoredIcon glyph={icon} style={{ fontSize: '16px' }} />
+  }
+  return null;
+}
