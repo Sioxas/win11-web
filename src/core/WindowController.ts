@@ -11,43 +11,35 @@ import TaskBarService from './TaskBar/TaskBarService';
 
 export class WindowController<T extends Application> {
   static windowId = 0;
+  
+  /** Window uniq key */
   windowId = WindowController.windowId++;
-  #drag = false;
-  #resizer = WindowResizer.NONE;
-  rect?: Rect;
-  #windowElement?: HTMLDivElement;
 
-  #level$: BehaviorSubject<WindowLevel>;
-  get level$() {
-    return this.#level$.asObservable();
-  }
+  /** Window rect, set and get window size or position */
+  rect?: Rect;
+
+  level$: BehaviorSubject<WindowLevel>;
   get level() {
-    return this.#level$.value;
+    return this.level$.value;
   }
   set level(level: WindowLevel) {
-    this.#level$.next(level);
+    this.level$.next(level);
   }
 
-  #active$ = new BehaviorSubject<boolean>(true);
-  get active$() {
-    return this.#active$.asObservable();
-  }
+  active$ = new BehaviorSubject<boolean>(true);
   get active() {
-    return this.#active$.value;
+    return this.active$.value;
   }
   set active(value: boolean) {
-    this.#active$.next(value);
+    this.active$.next(value);
   }
 
-  #windowResizeType$: BehaviorSubject<WindowResizeType>;
-  get windowResizeType$() {
-    return this.#windowResizeType$.asObservable();
-  }
+  windowResizeType$: BehaviorSubject<WindowResizeType>;
   get windowResizeType() {
-    return this.#windowResizeType$.value;
+    return this.windowResizeType$.value;
   }
   set windowResizeType(type: WindowResizeType) {
-    this.#windowResizeType$.next(type);
+    this.windowResizeType$.next(type);
   }
 
   #zIndex = 0;
@@ -61,6 +53,15 @@ export class WindowController<T extends Application> {
     return this.#zIndex;
   }
 
+  /** Whether the window is dragging */
+  #drag = false;
+
+  /** The resizer current dragginh */
+  #resizer = WindowResizer.NONE;
+
+  /** Window element */
+  #windowElement?: HTMLDivElement;
+
   private windowService = WindowService.getInstance();
 
   private taskBarService = TaskBarService.getInstance();
@@ -69,8 +70,8 @@ export class WindowController<T extends Application> {
     public options: Required<WindowOptions>,
     public application: T,
   ) {
-    this.#level$ = new BehaviorSubject<WindowLevel>(options.level);
-    this.#windowResizeType$ = new BehaviorSubject<WindowResizeType>(options.defaultResizeType);
+    this.level$ = new BehaviorSubject<WindowLevel>(options.level);
+    this.windowResizeType$ = new BehaviorSubject<WindowResizeType>(options.defaultResizeType);
   }
 
   init(windowElement: HTMLDivElement) {
