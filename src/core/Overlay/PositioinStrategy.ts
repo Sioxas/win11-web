@@ -1,4 +1,4 @@
-import OverlayController from "./OverlayController";
+import { RefObject } from "react";
 
 /** Horizontal dimension of a connection point on the perimeter of the origin or overlay element. */
 export type HorizontalConnectionPos = 'start' | 'center' | 'end';
@@ -49,7 +49,7 @@ export class ConnectionPositionPair {
 /** Strategy for setting the position on an overlay. */
 export interface PositionStrategy {
   /** Attaches this position strategy to an overlay. */
-  attach(overlay: OverlayController): void;
+  attach(overlayRef: RefObject<HTMLElement>): void;
 
   /** Updates the position of the overlay element. */
   apply(): void;

@@ -47,7 +47,7 @@ export default class OverlayController {
 
     this.#overlay.append(this);
 
-    this.config.positionStrategy?.attach(this);
+    this.config.positionStrategy?.attach(this.overlayRef);
 
     this.#applySubscrption = this.overlayRef.observable.subscribe((element) => {
       if (element) {

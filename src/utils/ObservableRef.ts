@@ -23,6 +23,6 @@ export class ObservableRef<T> implements RefObject<T>{
   }
 }
 
-export function useObservableRef<T>(value: T): RefObject<T> {
+export function useObservableRef<T>(value: T | null): RefObject<T> {
   return useMemo(() => new ObservableRef(value), []);
 }

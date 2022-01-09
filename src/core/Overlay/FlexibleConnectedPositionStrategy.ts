@@ -2,7 +2,6 @@ import { RefObject } from "react";
 
 import Point from "@/utils/Point";
 import { ConnectionPositionPair, PositionStrategy } from "./PositioinStrategy";
-import OverlayController from "./OverlayController";
 
 /** Possible values that can be set as the origin of a FlexibleConnectedPositionStrategy. */
 export type FlexibleConnectedPositionStrategyOrigin =
@@ -71,8 +70,8 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
   }
 
   /** Attaches this position strategy to an overlay. */
-  attach(controller: OverlayController): void {
-    this.#overlayRef = controller.overlayRef;
+  attach(overlayRef: RefObject<HTMLElement>): void {
+    this.#overlayRef = overlayRef;
   }
 
   detach(): void {

@@ -33,5 +33,4 @@ export default class Overlay extends Service {
   remove(overlay: OverlayController){
     this.overlays$.next(this.overlays$.getValue().filter((o) => o !== overlay));
   }
-
 }
