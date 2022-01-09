@@ -14,7 +14,7 @@ export default function ExplorerView() {
           <span>新建</span>
           <i className='iconfont icon-down' style={{ fontSize:'12px', margin: '0 3px' }} />
         </Dropdown.Button>
-        <div className="explorer-toolbar-divider"></div>
+        <div className="explorer-toolbar-divider" />
         <Button type='text' className='explorer-toolbar-item'>
           <ColoredIcon glyph={ColoredIconGlyph.Cut} className='explorer-toolbar-item-icon' />
         </Button>

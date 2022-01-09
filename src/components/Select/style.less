@@ -1,0 +1,21 @@
+.select-option{
+  font-size: 14px;
+  font-weight: 400;
+  font-family: Inter, sans-serif;
+  display: flex;
+  align-items: center;
+  flex: 0 0 32px;
+  height: 32px;
+  line-height: 32px;
+  fill: #fff;
+  color: var(--color-text-1);
+  cursor: default;
+  text-decoration: none;
+  text-align: left;
+  white-space: nowrap;
+  border-radius: 4px;
+  transition: background-color 0.1s;
+  &:hover:not(.select-option-disabled){
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
