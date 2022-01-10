@@ -1,14 +1,36 @@
-import { createContext, useContext, useEffect, useMemo } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Subject } from 'rxjs';
 import classNames from 'classnames';
 
 import Button from '../Button';
+import ConnectedOverlay from '../ConnectedOverlay';
 
 import './style.less';
 
-const SelectContext = createContext({
-  registerOption: (option: OptionProps<any>) => { },
-  unregisterOption: (option: OptionProps<any>) => { },
-});
+class SelectController<T> {
+  private options: OptionProps<T>[] = [];
+
+  onOptionSelect$ = new Subject<T>();
+
+  constructor(private keyExtractor: (item: T) => string | number = defaultKeyExtractor) { }
+
+  getOptionByValue(value: T) {
+    return this.options.find(o => this.keyExtractor(o.value) === this.keyExtractor(value));
+  }
+
+  addOption(option: OptionProps<T>) {
+    this.options.push(option);
+  }
+
+  removeOption(option: OptionProps<T>) {
+    const index = this.options.findIndex(o => this.keyExtractor(o.value) === this.keyExtractor(option.value));
+    if (index !== -1) {
+      this.options.splice(index, 1);
+    }
+  }
+}
+
+const SelectContext = createContext(new SelectController<any>());
 
 export interface SelectProps<T> {
   value: T | undefined;
@@ -19,53 +41,79 @@ export interface SelectProps<T> {
 }
 
 export function Select<T>(props: SelectProps<T>) {
-  const { children, keyExtractor = defaultKeyExtractor } = props;
-  const contextValue = useMemo(() => {
-    let options: OptionProps<T>[] = [];
-    function registerOption(option: OptionProps<T>) {
-      options.push(option);
-    }
-    function unregisterOption(option: OptionProps<T>) {
-      let index = -1;
-      for (let i = 0; i < options.length; i++) {
-        if(keyExtractor(options[i].value) === keyExtractor(option.value)){
-          index = i;
-          break;
-        }
-      }
-      if (index >= 0) {
-        options.splice(index, 1);
-      }
-    }
-    return { registerOption, unregisterOption };
+  const { children, keyExtractor = defaultKeyExtractor, onChange, placeholder, value } = props;
+
+  const selectButtonRef = useRef<HTMLButtonElement>(null);
+
+  const [showOptions, setShowOptions] = useState(false);
+
+  const controller = useMemo(() => new SelectController<T>(keyExtractor), []);
+
+  useEffect(() => {
+    const subscription = controller.onOptionSelect$.subscribe(value => {
+      setShowOptions(false);
+      onChange?.(value);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
-  return (<>
-    <Button>
+  const selectedContent = useMemo(() => {
+    if (value === undefined) {
+      return;
+    }
+    const option = controller.getOptionByValue(value);
+    if (option) {
+      return option.children;
+    }
+  }, [value && keyExtractor(value)]);
 
+  function onClick() {
+    // TODO: get overlay position
+    setShowOptions(true);
+  }
+
+  return (<>
+    <Button ref={selectButtonRef} onClick={onClick}>
+      {selectedContent ?? placeholder}
     </Button>
-    <SelectContext.Provider value={contextValue}>
-      {children}
-    </SelectContext.Provider>
-  </>
-  );
+    {showOptions && <SelectContext.Provider value={controller}>
+      <ConnectedOverlay connectedTo={selectButtonRef} verticalFlexable>
+        {children}
+      </ConnectedOverlay>
+    </SelectContext.Provider>}
+  </>);
 }
 
 export interface OptionProps<T> {
   value: T;
-  chidlren?: React.ReactNode;
+  children?: React.ReactNode;
   disabled?: boolean;
 }
 
 export function Option<T>(props: OptionProps<T>) {
-  const { registerOption, unregisterOption } = useContext(SelectContext);
+  const { value, children, disabled } = props;
+
+  const controller = useContext(SelectContext);
+
   useEffect(() => {
-    registerOption(props);
+    controller.addOption(props);
     return () => {
-      unregisterOption(props);
-    };
+      controller.removeOption(props);
+    }
   }, []);
-  return null;
+
+  function onClick() {
+    if (!disabled) {
+      controller.onOptionSelect$.next(value);
+    }
+  }
+
+  return <div
+    className={classNames('select-option', { 'select-option-dsiabled': disabled })}
+    onClick={onClick}
+  >
+    {children}
+  </div>;
 }
 
 
