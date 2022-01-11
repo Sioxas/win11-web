@@ -8,8 +8,8 @@ import { ConnectionPositionPair } from '@/core/Overlay/PositioinStrategy';
 interface ConnectedOverlayProps {
   connectedTo: RefObject<HTMLElement>;
   positions?: ConnectionPositionPair[];
-  verticalFlexable?: boolean;
-  horizontalFlexable?: boolean;
+  verticalFlexiable?: boolean;
+  horizontalFlexiable?: boolean;
   panelClass?: string | string[];
   hasBackdrop?: boolean;
   backdropClass?: string | string[];
@@ -20,8 +20,8 @@ interface ConnectedOverlayProps {
 export default function ConnectedOverlay({
   connectedTo,
   positions,
-  verticalFlexable,
-  horizontalFlexable,
+  verticalFlexiable,
+  horizontalFlexiable,
   panelClass = 'overlay-panel',
   hasBackdrop = false,
   backdropClass = 'overlay-transparent-backdrop',
@@ -37,10 +37,10 @@ export default function ConnectedOverlay({
     if (Array.isArray(positions) && positions.length > 0) {
       positionStrategy.withPositions(positions);
     }
-    if (verticalFlexable) {
+    if (verticalFlexiable) {
       positionStrategy.withVerticalFlexible(true);
     }
-    if (horizontalFlexable) {
+    if (horizontalFlexiable) {
       positionStrategy.withHorizontalFlexible(true);
     }
     positionStrategy.attach(overlayRef);

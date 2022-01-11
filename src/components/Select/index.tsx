@@ -1,110 +1,87 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { cloneElement, createContext, isValidElement, ReactElement, ReactNode, ReactNodeArray, RefObject, useContext, useEffect, useRef, useState } from 'react';
 import { Subject } from 'rxjs';
 import classNames from 'classnames';
 
+import Point from '@/utils/Point';
+import { useOverlay } from '@/core/ServiceHooks';
+import { ConnectionPositionPair } from '@/core/Overlay/PositioinStrategy';
 import Button from '../Button';
 import ConnectedOverlay from '../ConnectedOverlay';
 
 import './style.less';
 
-class SelectController<T> {
-  private options: OptionProps<T>[] = [];
-
-  onOptionSelect$ = new Subject<T>();
-
-  constructor(private keyExtractor: (item: T) => string | number = defaultKeyExtractor) { }
-
-  getOptionByValue(value: T) {
-    return this.options.find(o => this.keyExtractor(o.value) === this.keyExtractor(value));
-  }
-
-  addOption(option: OptionProps<T>) {
-    this.options.push(option);
-  }
-
-  removeOption(option: OptionProps<T>) {
-    const index = this.options.findIndex(o => this.keyExtractor(o.value) === this.keyExtractor(option.value));
-    if (index !== -1) {
-      this.options.splice(index, 1);
-    }
-  }
-}
-
-const SelectContext = createContext(new SelectController<any>());
-
 export interface SelectProps<T> {
   value: T | undefined;
   onChange?: (value: T | undefined) => void;
-  keyExtractor?: (item: T) => string | number;
+  compareWith?: (o1: T, o2: T) => boolean;
   placeholder?: string;
-  children: React.ReactNode;
+  children: ReactNodeArray;
 }
 
 export function Select<T>(props: SelectProps<T>) {
-  const { children, keyExtractor = defaultKeyExtractor, onChange, placeholder, value } = props;
+  const { children, compareWith = defaultCompareFn, onChange, placeholder, value } = props;
 
   const selectButtonRef = useRef<HTMLButtonElement>(null);
 
-  const [showOptions, setShowOptions] = useState(false);
+  let selectedContent: ReactNode = placeholder;
 
-  const controller = useMemo(() => new SelectController<T>(keyExtractor), []);
-
-  useEffect(() => {
-    const subscription = controller.onOptionSelect$.subscribe(value => {
-      setShowOptions(false);
-      onChange?.(value);
+  if (value !== undefined) {
+    const option = React.Children.toArray(children).find(child => {
+      if (isValidElement(child)) {
+        return compareWith(value, child.props.value);
+      }
+      return false;
     });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const selectedContent = useMemo(() => {
-    if (value === undefined) {
-      return;
+    if (isValidElement(option)) {
+      selectedContent = option.props.children;
     }
-    const option = controller.getOptionByValue(value);
-    if (option) {
-      return option.children;
-    }
-  }, [value && keyExtractor(value)]);
-
-  function onClick() {
-    // TODO: get overlay position
-    setShowOptions(true);
   }
 
-  return (<>
+  const overlay = useOverlay();
+
+  function onClick() {
+    const options = React.Children.toArray(children)
+      .filter(child => isValidElement(child) && child.type === Option)
+      .map(child => cloneElement(child as ReactElement<OptionProps<T>, typeof Option>, { onOptionSelect: onChange }));
+
+    const positionStrategy = overlay.position()
+      .flexibleConnectedTo(selectButtonRef)
+      .withPositions([
+        new ConnectionPositionPair(
+          { originX: 'start', originY: 'top' }, 
+          { overlayX: 'start', overlayY: 'top' },
+          -4, -4
+        ),
+      ])
+      .withVerticalFlexible();
+    const optionsOverlay = overlay.create({
+      positionStrategy,
+      hasBackdrop: true,
+    });
+    optionsOverlay.attach(options);
+  }
+
+  return (
     <Button ref={selectButtonRef} onClick={onClick}>
-      {selectedContent ?? placeholder}
+      {selectedContent}
     </Button>
-    {showOptions && <SelectContext.Provider value={controller}>
-      <ConnectedOverlay connectedTo={selectButtonRef} verticalFlexable>
-        {children}
-      </ConnectedOverlay>
-    </SelectContext.Provider>}
-  </>);
+  );
 }
 
 export interface OptionProps<T> {
   value: T;
   children?: React.ReactNode;
   disabled?: boolean;
+  /** @internal */
+  onOptionSelect?: (value: T) => void;
 }
 
 export function Option<T>(props: OptionProps<T>) {
-  const { value, children, disabled } = props;
-
-  const controller = useContext(SelectContext);
-
-  useEffect(() => {
-    controller.addOption(props);
-    return () => {
-      controller.removeOption(props);
-    }
-  }, []);
+  const { value, children, disabled, onOptionSelect } = props;
 
   function onClick() {
     if (!disabled) {
-      controller.onOptionSelect$.next(value);
+      onOptionSelect?.(value);
     }
   }
 
@@ -116,10 +93,6 @@ export function Option<T>(props: OptionProps<T>) {
   </div>;
 }
 
-
-function defaultKeyExtractor<T>(item: T): number | string {
-  if (typeof item !== 'number' || typeof item !== 'string') {
-    throw new Error('You need to provide a keyExtractor function to the Select component');
-  }
-  return item;
+function defaultCompareFn<T>(a: T, b: T) {
+  return a === b;
 }

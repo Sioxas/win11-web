@@ -1,11 +1,15 @@
+import { useState } from 'react';
+
 import Button from '@/components/Button';
 import { ColoredIcon, ColoredIconGlyph } from '@/components/ColoredIcon';
 import Dropdown from '@/components/Dropdown';
+import { Select, Option } from '@/components/Select';
 import { newMenu } from './config';
 
 import './style.less';
 
 export default function ExplorerView() {
+  const [value, setValue] = useState<string|undefined>('1');
   return (
     <div className="explorer">
       <div className="explorer-toolbar">
@@ -46,6 +50,13 @@ export default function ExplorerView() {
           <ColoredIcon glyph={ColoredIconGlyph.Properties} className='explorer-toolbar-item-icon' />
         </Button>
       </div>
+      <Select value={value} onChange={setValue} placeholder='Please select mode'>
+        <Option value='1'>Mode 1</Option>
+        <Option value='2'>Mode 2</Option>
+        <Option value='3'>Mode 3</Option>
+        <Option value='4'>Mode 4</Option>
+        <Option value='5'>Mode 5</Option>
+      </Select>
     </div>
   );
 }
