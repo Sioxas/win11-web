@@ -1,5 +1,6 @@
 import Button from '@/components/Button';
 import TextField from '@/components/TextField';
+import { Icon } from '@/components/Icon';
 
 import './style.less';
 
@@ -27,7 +28,7 @@ export default function StartMenuView() {
   return (
     <div className="start-menu">
       <TextField placeholder='在此键入以搜索' size='large' prefix={
-        <span className="iconfont icon-sousuo" />
+        <Icon name="sousuo" />
       } />
       <div className="pinned-apps">
         <div className="pinned-apps-header">

@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 import './style.less';
 
 export class ColoredIconGlyph {
@@ -30,4 +32,14 @@ export function ColoredIcon({ glyph, className = '', style }: ColoredIconProps) 
     <div className="colored-icon-base-layer">{glyph.baseLayerGlyph}</div>
     {glyph.overlayLayerGlyph && <div className="colored-icon-overlay-layer">{glyph.overlayLayerGlyph}</div>}
   </div>;
+}
+
+interface IconProps{
+  name: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export function Icon({ name, className, style }: IconProps){
+  return <i className={classNames('iconfont', `icon-${name}`, className)} style={style} />;
 }

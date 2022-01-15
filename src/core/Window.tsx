@@ -69,19 +69,19 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
     {
       text: '还原',
       disabled: !(Boolean(controlButton & WindowControlButton.MAXIMIZE) && resizeType === WindowResizeType.MAXIMIZED),
-      icon: 'icon-restore',
+      icon: 'restore',
       onSelect: () => controller.normalize(),
     },
     {
       text: '最小化',
       disabled: !Boolean(controlButton & WindowControlButton.MINIMIZE),
-      icon: 'icon-minimize',
+      icon: 'minimize',
       onSelect: () => controller.minimize(),
     },
     {
       text: '最大化',
       disabled: !(Boolean(controlButton & WindowControlButton.MAXIMIZE) && resizeType === WindowResizeType.NORMAL),
-      icon: 'icon-maximize',
+      icon: 'maximize',
       onSelect: () => controller.maximize(),
     },
     {
@@ -90,7 +90,7 @@ function Window<T extends Application>({ children, controller }: WindowProps<T>)
     {
       text: '关闭',
       disabled: !Boolean(controlButton & WindowControlButton.CLOSE),
-      icon: 'icon-close',
+      icon: 'close',
       onSelect: () => controller.close(),
     }
   ];

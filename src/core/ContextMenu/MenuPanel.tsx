@@ -1,6 +1,6 @@
 import classNames from "classnames";
 
-import { ColoredIcon, ColoredIconGlyph } from "@/components/ColoredIcon";
+import { ColoredIcon, ColoredIconGlyph, Icon } from "@/components/Icon";
 import { ContextMenuType } from "./interface";
 import MenuPanelController from "./MenuPanelController";
 
@@ -57,8 +57,8 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
                   'context-menu-item-disabled': disabled,
                 })}
                 onClick={() => {
-                  if(!option.disabled && !hasChildren){
-                    panel.onSelect(option);                 
+                  if (!option.disabled && !hasChildren) {
+                    panel.onSelect(option);
                   }
                 }}
               >
@@ -71,7 +71,7 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
                 </div>
                 {shortcut && <div className="context-menu-item-shortcut">{shortcut}</div>}
                 {hasChildren && <div className="context-menu-item-children-mark">
-                  <i className="iconfont icon-right"></i>
+                  <Icon name="right" />
                 </div>}
               </li>
             );
@@ -81,10 +81,17 @@ export default function MenuPanel({ panel }: ContextMenuProps) {
   );
 }
 
-function ConetxtMenuIcon({ icon }: { icon: string | ColoredIconGlyph }) {
-  if (typeof icon === 'string') {
-    return icon.startsWith('icon') ? <i className={`iconfont ${icon}`} /> : <img src={icon} />;
-  } else if(icon instanceof ColoredIconGlyph){
+interface ConetxtMenuIconProps {
+  icon?: ColoredIconGlyph | string;
+  image?: string;
+}
+
+function ConetxtMenuIcon({ icon, image }: ConetxtMenuIconProps) {
+  if (image) {
+    return <img src={image} />;
+  } else if (typeof icon === 'string') {
+    return <Icon name={icon} />;
+  } else if (icon instanceof ColoredIconGlyph) {
     return <ColoredIcon glyph={icon} style={{ fontSize: '16px' }} />
   }
   return null;

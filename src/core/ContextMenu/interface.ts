@@ -1,4 +1,4 @@
-import { ColoredIconGlyph } from "@/components/ColoredIcon";
+import { ColoredIconGlyph } from "@/components/Icon";
 
 export enum ContextMenuType {
   Menu,

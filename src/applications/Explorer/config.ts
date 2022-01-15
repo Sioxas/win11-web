@@ -1,4 +1,4 @@
-import { ColoredIconGlyph } from "@/components/ColoredIcon";
+import { ColoredIconGlyph } from "@/components/Icon";
 import { ContextMenuItem } from "@/core/ContextMenu";
 
 export const newMenu: ContextMenuItem[] = [
