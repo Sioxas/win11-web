@@ -1,7 +1,7 @@
 import React from "react";
 
 import Point from "@/utils/Point";
-import pointInTriangle from "@/utils/pointInTrangle";
+import pointInTriangle from "@/utils/pointInTriangle";
 import Overlay from "../Overlay/Overlay";
 import OverlayController from "../Overlay/OverlayController";
 import { ConnectionPositionPair } from "../Overlay/PositioinStrategy";

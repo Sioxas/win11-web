@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 2866378 */
-  src: url('iconfont.woff2?t=1642178609786') format('woff2'),
-       url('iconfont.woff?t=1642178609786') format('woff'),
-       url('iconfont.ttf?t=1642178609786') format('truetype');
+  src: url('iconfont.woff2?t=1651925620929') format('woff2'),
+       url('iconfont.woff?t=1651925620929') format('woff'),
+       url('iconfont.ttf?t=1651925620929') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-right:before {
+  content: "\e6a3";
+}
+
+.icon-down:before {
+  content: "\e619";
 }
 
 .icon-liebiaoxingshi:before {
@@ -39,14 +47,6 @@
 
 .icon-arrow-left:before {
   content: "\eca4";
-}
-
-.icon-down:before {
-  content: "\e69b";
-}
-
-.icon-right:before {
-  content: "\e642";
 }
 
 .icon-sousuo:before {
