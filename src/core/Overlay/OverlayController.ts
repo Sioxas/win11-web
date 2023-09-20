@@ -52,6 +52,7 @@ export default class OverlayController {
     this.#applySubscrption = this.overlayRef.observable.subscribe((element) => {
       if (element) {
         this.config.positionStrategy?.apply();
+        this.#applySubscrption?.unsubscribe();
       }
     });
 
@@ -60,9 +61,9 @@ export default class OverlayController {
     return this;
   }
 
-  detach() {
+  async detach() {
+    await this.config.positionStrategy?.detach?.();
     this.#overlay.remove(this);
-    this.config.positionStrategy?.detach?.();
     this.attached = false;
     this.#applySubscrption?.unsubscribe();
   }

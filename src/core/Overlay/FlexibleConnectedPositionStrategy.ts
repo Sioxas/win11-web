@@ -2,6 +2,7 @@ import { RefObject } from "react";
 
 import Point from "@/utils/Point";
 import { ConnectionPositionPair, PositionStrategy } from "./PositioinStrategy";
+import { AnimationStrategy } from "./AnimationStrategy";
 
 /** Possible values that can be set as the origin of a FlexibleConnectedPositionStrategy. */
 export type FlexibleConnectedPositionStrategyOrigin =
@@ -53,6 +54,8 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
    */
   #horizontalFlexible: boolean = false;
 
+  #animationStrategy?: AnimationStrategy;
+
   constructor(connectedTo: FlexibleConnectedPositionStrategyOrigin) {
     this.setOrigin(connectedTo);
   }
@@ -74,8 +77,13 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
     this.#overlayRef = overlayRef;
   }
 
-  detach(): void {
+  async detach() {
+    await this.#animationStrategy?.dispose();
     this.#overlayRef = undefined;
+  }
+
+  animation() {
+    return this.#animationStrategy = new AnimationStrategy();
   }
 
   /**
@@ -98,14 +106,14 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
       // If the overlay, without any further work, fits into the viewport, use this position.
       if (overlayFit.isCompletelyWithinViewport) {
         // this._isPushed = false;
-        this.#applyPosition(pos, overlayPoint);
+        this.#applyPosition(pos, overlayPoint, originPoint);
         return;
       }
 
       // If the overlay has flexible coordinate, we can use this position
       if (this.#canFitWithFlexibleCoordinate(overlayFit, overlayPoint, overlayRect)) {
         const overlayFlexiblePoint = this.#getOverlayFlexiblePoint(overlayFit, overlayPoint, overlayRect);
-        this.#applyPosition(pos, overlayFlexiblePoint);
+        this.#applyPosition(pos, overlayFlexiblePoint, originPoint);
         return;
       }
 
@@ -119,7 +127,7 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
 
     // All options for getting the overlay within the viewport have been exhausted, so go with the
     // position that went off-screen the least.
-    this.#applyPosition(fallback!.position, fallback!.originPoint);
+    this.#applyPosition(fallback!.position, fallback!.originPoint, fallback!.originPoint);
   }
 
   dispose(): void {
@@ -309,14 +317,20 @@ export class FlexibleConnectedPositionStrategy implements PositionStrategy {
    * @param position The position preference
    * @param overlayPoint The overlay element start point.
    */
-  #applyPosition(position: ConnectionPositionPair, overlayPoint: Point) {
+  #applyPosition(position: ConnectionPositionPair, overlayPoint: Point, originPoint: Point) {
     const overlayElement = this.#overlayElement;
-    if (overlayElement) {
-      let { x, y } = overlayPoint;
-      overlayElement.style.position = 'absolute';
-      overlayElement.style.zIndex = '1000';
-      overlayElement.style.left = `${x}px`;
-      overlayElement.style.top = `${y}px`;
+    if (!overlayElement) {
+      return;
+    }
+    // const overlayRect = overlayElement.getBoundingClientRect();
+    let { x, y } = overlayPoint;
+    overlayElement.style.position = 'fixed';
+    overlayElement.style.zIndex = '1000';
+    overlayElement.style.left = `${x}px`;
+    overlayElement.style.top = `${y}px`;
+    if (this.#animationStrategy) {
+      this.#animationStrategy.attach(overlayElement);
+      this.#animationStrategy.apply(originPoint, overlayPoint);
     }
   }
 

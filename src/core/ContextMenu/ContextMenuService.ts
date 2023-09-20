@@ -29,6 +29,7 @@ export default class ContextMenuService extends Service {
         new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'end', overlayY: 'top' }),
       ])
       .withVerticalFlexible();
+    positionStrategy.animation().clipX().clipY().duration(150);
     this.#apply(positionStrategy, options);
   }
 
@@ -40,11 +41,12 @@ export default class ContextMenuService extends Service {
       throw new Error('options must be array of ContextMenuItem');
     }
     const positionStrategy = this.overlay.position().flexibleConnectedTo(origin);
+    positionStrategy.animation().clipY().duration(150);
     this.#apply(positionStrategy, options);
   }
 
-  dispose() {
-    this.#menuPanelController?.dispose();
+  async dispose() {
+    await this.#menuPanelController?.dispose();
     this.#menuPanelController = undefined;
   }
 

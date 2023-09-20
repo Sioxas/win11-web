@@ -50,9 +50,9 @@ export default class MenuPanelController {
     this.#contextMenu.dispose();
   }
 
-  dispose() {
-    this.overlayController.detach();
-    this.#childMenuPanel?.dispose();
+  async dispose() {
+    await this.#childMenuPanel?.dispose();
+    await this.overlayController.detach();
   }
 
   #p0: Point = { x: 0, y: 0 };
@@ -96,6 +96,8 @@ export default class MenuPanelController {
         new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'end', overlayY: 'top' }, 0, -4),
       ])
       .withVerticalFlexible();
+      
+    positionStrategy.animation().clipY().clipX().duration(150);
 
     const menuOverlay = this.#overlay.create({ positionStrategy });
 
